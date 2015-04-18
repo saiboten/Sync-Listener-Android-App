@@ -1,36 +1,42 @@
 package saiboten.no.synclistener;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebSettings;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 
-public class ViewFragmentsPagerAdapter extends FragmentPagerAdapter {
+public class ViewFragmentsPagerAdapter extends SmartFragmentStatePagerAdapter {
 
-    Fragment main;
+    private final static String TAG = "ViewFragPagerAdapter";
 
-    Fragment webView;
+   // MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
 
-    MainActivity mainActivity;
+   //  WebViewFragment webViewFragment = new WebViewFragment();
 
-    public ViewFragmentsPagerAdapter(FragmentManager fm, MainActivity mainActivity) {
+    public ViewFragmentsPagerAdapter(FragmentManager fm) {
         super(fm);
-        this.mainActivity = mainActivity;
-        main = new MusicPlayerFragment();
-        webView = new WebViewFragment();
     }
 
     @Override
     public Fragment getItem(int i) {
-        Log.d("ViewFragPagerAdapter", "Request item number: " + i);
+        Log.d(TAG, "Request item number: " + i);
 
        if(i==0) {
-           return main;
+           Log.d(TAG, "Creating MusicPlayerFragment");
+           return MusicPlayerFragment.newInstance();
        }
         else {
-           return webView;
+           Log.d(TAG, "Creating WebViewFragment");
+           return WebViewFragment.newInstance();
        }
     }
 

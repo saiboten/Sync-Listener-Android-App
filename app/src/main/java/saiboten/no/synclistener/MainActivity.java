@@ -3,6 +3,8 @@
 // Copyright (c) 2014 Spotify. All rights reserved.
 package saiboten.no.synclistener;
 
+import android.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.widget.EditText;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 public class MainActivity extends FragmentActivity {
@@ -26,22 +29,40 @@ public class MainActivity extends FragmentActivity {
     // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
     public static final int REQUEST_CODE = 1337;
 
+    private MusicServiceCommunicator musicServiceCommunicator;
+
+    private final static String TAG = "MainActivity";
+
     //Your activity will respond to this action String
     public static final String SYNCHRONIZE = "no.saiboten.synclistener.SYNCHRONIZE";
     public static final String SEEK = "no.saiboten.synclistener.SEEK";
+    public static final String PAUSE = "no.saiboten.synclistener.PAUSE";
+    public static final String RESUME = "no.saiboten.synclistener.RESUME";
+
+    private static final String CLIENT_ID = "b60120e0052b4973b2a89fab00925019";
+
+    private static final String REDIRECT_URI = "spotocracy://callback";
 
     private BroadcastReceiver bReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("MainActivity", "Received intent in MainActivity. From the service? OMG!" + intent.getAction());
+            Log.d(TAG, "Received intent in MainActivity. From the service? OMG!" + intent.getAction());
             if(intent.getAction().equals(SYNCHRONIZE)) {
-                Log.d("MainActivity", "Synchronizing with server playlist");
+                Log.d(TAG, "Synchronizing with server playlist");
                 musicPlayerFragment().synchronizeViewWithPlaylist();
             }
             else if(intent.getAction().equals(SEEK)) {
-                Log.d("MainActivity", "Seeking to the right place");
+                Log.d(TAG, "Seeking to the right place");
                 musicPlayerFragment().seek();
+            }
+            else if(intent.getAction().equals(PAUSE)) {
+                Log.d(TAG, "Pausing");
+                musicPlayerFragment().pause();
+            }
+            else if(intent.getAction().equals(RESUME)) {
+                Log.d(TAG, "Resuming");
+                musicPlayerFragment().resume();
             }
         }
     };
@@ -54,22 +75,27 @@ public class MainActivity extends FragmentActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(SYNCHRONIZE);
         intentFilter.addAction(SEEK);
+        intentFilter.addAction(PAUSE);
+        intentFilter.addAction(RESUME);
         bManager.registerReceiver(bReceiver, intentFilter);
 
-        Log.d("MainActivity", "onCreate");
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
+
+        getFragmentManager().findFragmentByTag("");
 
         mViewFragmentsPagerAdapter =
                 new ViewFragmentsPagerAdapter(
-                        getSupportFragmentManager(), this);
+                        getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.pager);
+
         mViewPager.setAdapter(mViewFragmentsPagerAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {
-                WebViewFragment webViewFragment = (WebViewFragment) mViewFragmentsPagerAdapter.getItem(1); // 1 == webview
-                MusicPlayerFragment musicPlayerFragment = (MusicPlayerFragment)  mViewFragmentsPagerAdapter.getItem(0); // 0 == player
+                WebViewFragment webViewFragment = getWebViewFragment(); // 1 == webview
+                MusicPlayerFragment musicPlayerFragment = musicPlayerFragment(); // 0 == player
                 EditText playlistName = (EditText) musicPlayerFragment.rootView.findViewById(R.id.playlist);
                 String playlist = playlistName.getText().toString();
                 Log.d("MainActivity", playlist);
@@ -86,10 +112,44 @@ public class MainActivity extends FragmentActivity {
                 // Not in use
             }
         });
+
+        musicServiceCommunicator = new MusicServiceCommunicator(this);
+        setupOrConnectToService();
+
+    }
+
+    public void setupOrConnectToService() {
+        if(musicServiceCommunicator.isMusicServiceRunning()) {
+            Log.d(TAG,"Music Service already running.");
+        }
+        else {
+            Log.d(TAG,"Authenticating and starting music service");
+            AuthenticationRequest.Builder builder =
+                    new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+
+            builder.setScopes(new String[]{"streaming"});
+            AuthenticationRequest request = builder.build();
+
+            AuthenticationClient.openLoginActivity(this, this.REQUEST_CODE, request);
+        }
+    }
+
+    public MusicServiceCommunicator getMusicServiceCommunicator() {
+        return this.musicServiceCommunicator;
+    }
+
+    public void startMusicService(AuthenticationResponse response) {
+        // Handle successful response
+        Log.d(TAG, "SpotifyPlayer: " + musicServiceCommunicator);
+        musicServiceCommunicator.startMusicService(response);
     }
 
     public MusicPlayerFragment musicPlayerFragment() {
-        return (MusicPlayerFragment) mViewFragmentsPagerAdapter.getItem(0);
+        return (MusicPlayerFragment) mViewFragmentsPagerAdapter.getRegisteredFragment(0);
+    }
+
+    public WebViewFragment getWebViewFragment() {
+        return (WebViewFragment) mViewFragmentsPagerAdapter.getRegisteredFragment(1);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -106,7 +166,8 @@ public class MainActivity extends FragmentActivity {
             switch (response.getType()) {
                 case TOKEN:
                     Log.d("MainActivity", "Token granted!");
-                    musicPlayerFragment().startMusicService(response);
+                    startMusicService(response);
+                    musicPlayerFragment().synchronizeViewWithPlaylist();
                     break;
 
                 case ERROR:
@@ -123,6 +184,8 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
+        LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
+        bManager.unregisterReceiver(bReceiver);
         super.onDestroy();
         Log.d("MainActivity", "Main activity destroyed");
     }

@@ -62,6 +62,8 @@ public class GetSongInfoByRestTask extends AsyncTask<String, Void, String> {
 
     protected void onPostExecute(String result) {
         Log.d("MainActivity", "onPostExecute spotify web api: result: " + result);
-        mainActivity.musicPlayerFragment().updateSongInfo(result);
+        if(mainActivity != null) {
+            mainActivity.musicPlayerFragment().updateSongInfo(result);
+        }
     }
 }

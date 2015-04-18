@@ -24,6 +24,10 @@ public class WebViewFragment extends Fragment {
 
     private String selectedPlaylist = "";
 
+    public WebViewFragment() {
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -59,5 +63,10 @@ public class WebViewFragment extends Fragment {
             WebView webView = (WebView) rootView.findViewById(R.id.webView);
             webView.loadUrl("http://spotocracy.net/p/"+playlist);
         }
+    }
+
+    public static Fragment newInstance() {
+        WebViewFragment webViewFragment = new WebViewFragment();
+        return webViewFragment;
     }
 }

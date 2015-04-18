@@ -14,24 +14,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import saiboten.no.synclistener.MusicPlayerFragment;
+import saiboten.no.synclistener.callbacks.NewSongFromSyncListenerCallback;
 
 /**
  * Created by Tobias on 15.03.2015.
  */
 public class GetSongByRestTask extends AsyncTask<String, Void, String> {
 
-        private MusicPlayerFragment musicPlayerFragment;
+        private NewSongFromSyncListenerCallback newSongFromSyncListenerCallback;
 
-        public GetSongByRestTask(MusicPlayerFragment musicPlayerFragment) {
-            this.musicPlayerFragment = musicPlayerFragment;
+        public GetSongByRestTask(NewSongFromSyncListenerCallback newSongFromSyncListenerCallback) {
+            this.newSongFromSyncListenerCallback = newSongFromSyncListenerCallback;
         }
 
         private Exception exception;
 
-        protected String doInBackground(String... urls) {
-            String url = urls[0];
-
+        protected String doInBackground(String... playlists) {
+            String playlist = playlists[0];
+            String url = "http://178.62.133.37:3000/get_song/" + playlist;
             String returnedData = null;
 
             try {
@@ -65,7 +65,7 @@ public class GetSongByRestTask extends AsyncTask<String, Void, String> {
 
         protected void onPostExecute(String result) {
             Log.d("MainActivity", "onPostExecute: result: " + result);
-            musicPlayerFragment.updateView(result);
+            newSongFromSyncListenerCallback.newSongCallback(result);
         }
 
 }

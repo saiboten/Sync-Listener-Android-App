@@ -87,9 +87,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:scaleX="1"
-            android:scaleY="1"
-            android:src="@drawable/play_button"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/synchronize"
             android:id="@+id/button"
             android:contentDescription="@string/playPause"
             android:layout_weight="0.1"/>

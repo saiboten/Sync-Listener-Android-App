@@ -28,6 +28,8 @@ public class MusicServiceCommunicator {
 
     private MusicService musicService;
 
+    private final static String TAG = "MusicServiceComm";
+
     public MusicServiceCommunicator(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
@@ -36,7 +38,7 @@ public class MusicServiceCommunicator {
         ActivityManager manager = (ActivityManager) mainActivity.getApplicationContext().getSystemService(mainActivity.getApplicationContext().ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if ("saiboten.no.synclistener.MusicService".equals(service.service.getClassName())) {
-                Log.d("MusicServiceCommu", "Music Service is running.");
+                Log.d(TAG, "Music Service is running.");
                 return true;
             }
         }
@@ -44,7 +46,7 @@ public class MusicServiceCommunicator {
     }
 
     public void pausePlayer() {
-        Log.d("MusicServiceComm", "Pausing player");
+        Log.d(TAG, "Pausing player");
 
         Intent intent = new Intent(mainActivity.getApplicationContext(), MusicService.class);
         intent.setAction("PAUSE");
@@ -53,7 +55,7 @@ public class MusicServiceCommunicator {
     }
 
     public void resumePlayer() {
-        Log.d("MusicServiceComm", "Resuming player");
+        Log.d(TAG, "Resuming player");
 
         Intent intent = new Intent(mainActivity.getApplicationContext(), MusicService.class);
         intent.setAction("RESUME");
@@ -62,7 +64,7 @@ public class MusicServiceCommunicator {
     }
 
     public void startMusicService(AuthenticationResponse response) {
-        Log.d("MusicServiceComm", "Player enabled");
+        Log.d(TAG, "Player enabled");
 
         Intent intent = new Intent(mainActivity, MusicService.class);
         intent.setAction("START_MUSIC_SERVICE");
@@ -72,7 +74,7 @@ public class MusicServiceCommunicator {
     }
 
     public void seekToPosition(int i) {
-        Log.d("MusicServiceComm", "Seeking to position " + i);
+        Log.d(TAG, "Seeking to position " + i);
 
         Intent intent = new Intent(mainActivity.getApplicationContext(), MusicService.class);
         intent.setAction("SEEK_POSITION");
@@ -81,11 +83,12 @@ public class MusicServiceCommunicator {
         mainActivity.startService(intent);
     }
 
-    public void play(String nextSong) {
-        Log.d("MusicServiceComm", "Playing song: " + nextSong);
+    public void play(String nextSong, String playlist) {
+        Log.d(TAG, "Playing song: " + nextSong);
 
         Intent intent = new Intent(mainActivity.getApplicationContext(), MusicService.class);
         intent.setAction("PLAY");
+        intent.putExtra("playlist", playlist);
         intent.putExtra("song", nextSong);
 
         mainActivity.startService(intent);
