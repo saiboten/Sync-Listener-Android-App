@@ -12,10 +12,7 @@ import android.text.Editable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.playback.Config;
-import com.spotify.sdk.android.playback.Player;
 
 /**
  * Created by Tobias on 15.03.2015.

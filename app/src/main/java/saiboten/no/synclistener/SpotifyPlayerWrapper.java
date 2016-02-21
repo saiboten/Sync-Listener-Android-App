@@ -1,7 +1,9 @@
 package saiboten.no.synclistener;
 
-import com.spotify.sdk.android.playback.Player;
-import com.spotify.sdk.android.playback.PlayerStateCallback;
+import android.util.Log;
+
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerStateCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
  * Created by Tobias on 31.03.2015.
  */
 public class SpotifyPlayerWrapper {
+
+    private final static String TAG = "SpotifyPlayerWrapper";
 
     private Player player;
 
@@ -42,7 +46,12 @@ public class SpotifyPlayerWrapper {
     }
 
     public void seekToPosition(int i) {
-        this.player.seekToPosition(i);
+        if(i>3000) {
+            this.player.seekToPosition(i);
+        }
+        else {
+            Log.d(TAG, "Position " + i + " is less than three seconds. Let's just skip the seek. Probably a new track");
+        }
     }
 
     public boolean isPlayerInitialized() {

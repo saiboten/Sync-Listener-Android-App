@@ -2,11 +2,10 @@
 <resources>
 
     <string name="app_name">SyncListener</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="playlistname">Playlist</string>
+    <string name="playlistname">Spilleliste</string>
 
-    <string name="next">Next Song</string>
+    <string name="next">Neste låt</string>
     <string name="playPause">Play or Pause</string>
     <string name="logo">Spotocracy Logo</string>
     <string name="defaultTime">00:00</string>
@@ -14,6 +13,9 @@
     <string name="local_service_stopped">localservicestopped</string>
     <string name="preference_file_key">no.saiboten.synclistener.Preferences</string>
     <string name="playlist">playlist</string>
+    <string name="playlistSet">playlistSet</string>
+    <string name="synchronize">Synchronize Player</string>
+    <string name="playOrPause">Play or pause</string>
 
 
 </resources>

@@ -4,12 +4,10 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.spotify.sdk.android.playback.ConnectionStateCallback;
-import com.spotify.sdk.android.playback.Player;
-import com.spotify.sdk.android.playback.PlayerNotificationCallback;
-import com.spotify.sdk.android.playback.PlayerState;
-
-import saiboten.no.synclistener.tasks.GetSongByRestTask;
+import com.spotify.sdk.android.player.ConnectionStateCallback;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerNotificationCallback;
+import com.spotify.sdk.android.player.PlayerState;
 
 /**
  * Created by Tobias on 15.03.2015.

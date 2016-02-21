@@ -4,106 +4,108 @@ ADDED from AndroidManifest.xml:2:1
 	xmlns:android
 		ADDED from AndroidManifest.xml:2:11
 	package
-		ADDED from AndroidManifest.xml:3:5
+		ADDED from AndroidManifest.xml:5:5
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
 	android:versionName
+		ADDED from AndroidManifest.xml:4:5
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
 	android:versionCode
+		ADDED from AndroidManifest.xml:3:5
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
 uses-permission#android.permission.INTERNET
-ADDED from AndroidManifest.xml:4:5
-	android:name
-		ADDED from AndroidManifest.xml:4:22
-uses-sdk
 ADDED from AndroidManifest.xml:6:5
-MERGED from com.spotify.sdk:spotifysdk:1.0.0-beta8:25:5
+	android:name
+		ADDED from AndroidManifest.xml:6:22
+uses-sdk
+ADDED from AndroidManifest.xml:8:5
+MERGED from com.spotify.sdk:spotify-auth:1.0.0-beta10:25:5
+MERGED from com.spotify.sdk:spotify-player:1.0.0-beta10:25:5
 	android:targetSdkVersion
-		ADDED from AndroidManifest.xml:7:9
+		ADDED from AndroidManifest.xml:9:9
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
 	android:minSdkVersion
-		ADDED from AndroidManifest.xml:6:15
+		ADDED from AndroidManifest.xml:8:15
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
 application
-ADDED from AndroidManifest.xml:9:5
-MERGED from com.spotify.sdk:spotifysdk:1.0.0-beta8:29:5
+ADDED from AndroidManifest.xml:11:5
+MERGED from com.spotify.sdk:spotify-auth:1.0.0-beta10:29:5
+MERGED from com.spotify.sdk:spotify-player:1.0.0-beta10:29:5
 	android:label
-		ADDED from AndroidManifest.xml:12:9
+		ADDED from AndroidManifest.xml:14:9
 	android:allowBackup
-		ADDED from AndroidManifest.xml:10:9
+		ADDED from AndroidManifest.xml:12:9
 	android:icon
-		ADDED from AndroidManifest.xml:11:9
-	android:theme
 		ADDED from AndroidManifest.xml:13:9
+	android:theme
+		ADDED from AndroidManifest.xml:15:9
 service#saiboten.no.synclistener.MusicService
-ADDED from AndroidManifest.xml:15:9
+ADDED from AndroidManifest.xml:17:9
 	android:name
-		ADDED from AndroidManifest.xml:15:18
+		ADDED from AndroidManifest.xml:17:18
 intent-filter#PAUSE+PLAY+RESUME+SEEK_POSITION
-ADDED from AndroidManifest.xml:16:13
+ADDED from AndroidManifest.xml:18:13
 action#PAUSE
-ADDED from AndroidManifest.xml:17:17
-	android:name
-		ADDED from AndroidManifest.xml:17:25
-action#PLAY
-ADDED from AndroidManifest.xml:18:17
-	android:name
-		ADDED from AndroidManifest.xml:18:25
-action#RESUME
 ADDED from AndroidManifest.xml:19:17
 	android:name
 		ADDED from AndroidManifest.xml:19:25
-action#SEEK_POSITION
+action#PLAY
 ADDED from AndroidManifest.xml:20:17
 	android:name
 		ADDED from AndroidManifest.xml:20:25
-activity#saiboten.no.synclistener.MainActivity
-ADDED from AndroidManifest.xml:24:9
-	android:label
-		ADDED from AndroidManifest.xml:26:13
-	android:theme
-		ADDED from AndroidManifest.xml:28:13
+action#RESUME
+ADDED from AndroidManifest.xml:21:17
 	android:name
-		ADDED from AndroidManifest.xml:25:13
-	android:launchMode
+		ADDED from AndroidManifest.xml:21:25
+action#SEEK_POSITION
+ADDED from AndroidManifest.xml:22:17
+	android:name
+		ADDED from AndroidManifest.xml:22:25
+activity#saiboten.no.synclistener.MainActivity
+ADDED from AndroidManifest.xml:26:9
+	android:label
+		ADDED from AndroidManifest.xml:28:13
+	android:theme
+		ADDED from AndroidManifest.xml:29:13
+	android:name
 		ADDED from AndroidManifest.xml:27:13
 intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:30:13
+ADDED from AndroidManifest.xml:31:13
 action#android.intent.action.MAIN
-ADDED from AndroidManifest.xml:31:17
+ADDED from AndroidManifest.xml:32:17
 	android:name
-		ADDED from AndroidManifest.xml:31:25
+		ADDED from AndroidManifest.xml:32:25
 category#android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:33:17
+ADDED from AndroidManifest.xml:34:17
 	android:name
-		ADDED from AndroidManifest.xml:33:27
+		ADDED from AndroidManifest.xml:34:27
 intent-filter#android.intent.action.VIEW+android.intent.category.BROWSABLE+android.intent.category.DEFAULT
-ADDED from AndroidManifest.xml:35:13
+ADDED from AndroidManifest.xml:36:13
 action#android.intent.action.VIEW
-ADDED from AndroidManifest.xml:36:17
+ADDED from AndroidManifest.xml:37:17
 	android:name
-		ADDED from AndroidManifest.xml:36:25
+		ADDED from AndroidManifest.xml:37:25
 category#android.intent.category.DEFAULT
-ADDED from AndroidManifest.xml:38:17
-	android:name
-		ADDED from AndroidManifest.xml:38:27
-category#android.intent.category.BROWSABLE
 ADDED from AndroidManifest.xml:39:17
 	android:name
 		ADDED from AndroidManifest.xml:39:27
-data
-ADDED from AndroidManifest.xml:41:17
-	android:host
-		ADDED from AndroidManifest.xml:42:21
-	android:scheme
-		ADDED from AndroidManifest.xml:43:21
-activity#com.spotify.sdk.android.authentication.LoginActivity
-ADDED from AndroidManifest.xml:47:9
-	android:theme
-		ADDED from AndroidManifest.xml:49:13
+category#android.intent.category.BROWSABLE
+ADDED from AndroidManifest.xml:40:17
 	android:name
-		ADDED from AndroidManifest.xml:48:13
+		ADDED from AndroidManifest.xml:40:27
+data
+ADDED from AndroidManifest.xml:42:17
+	android:host
+		ADDED from AndroidManifest.xml:43:21
+	android:scheme
+		ADDED from AndroidManifest.xml:44:21
+activity#com.spotify.sdk.android.authentication.LoginActivity
+ADDED from AndroidManifest.xml:48:9
+	android:theme
+		ADDED from AndroidManifest.xml:50:13
+	android:name
+		ADDED from AndroidManifest.xml:49:13

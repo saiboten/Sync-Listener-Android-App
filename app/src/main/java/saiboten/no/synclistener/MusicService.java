@@ -7,21 +7,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Binder;
-import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.spotify.sdk.android.Spotify;
-import com.spotify.sdk.android.playback.Config;
-import com.spotify.sdk.android.playback.Player;
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.Spotify;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import saiboten.no.synclistener.callbacks.NewSongFromSyncListenerCallback;
-import saiboten.no.synclistener.tasks.GetSongByRestTask;
+import saiboten.no.synclistener.tasks.GetNextSongByRestTask;
 
 /**
  * Created by Tobias on 27.03.2015.
@@ -113,7 +111,7 @@ public class MusicService extends IntentService implements NewSongFromSyncListen
             Intent openSyncListenerIntent = new Intent(this,MainActivity.class);
             openSyncListenerIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            PendingIntent openSyncListener = PendingIntent.getActivity(getApplicationContext(),12345, openSyncListenerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent openSyncListener = PendingIntent.getActivity(getApplicationContext(), 12345, openSyncListenerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             PendingIntent stopServicePendingIntent = PendingIntent.getService(getApplicationContext(),12345, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             PendingIntent pauseServicePendingIntent = PendingIntent.getService(getApplicationContext(),12345, pauseServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -127,7 +125,7 @@ public class MusicService extends IntentService implements NewSongFromSyncListen
                             .setContentIntent(openSyncListener)
                             .addAction(R.drawable.stop, "", stopServicePendingIntent)
                               .addAction(R.drawable.pause, "", pauseServicePendingIntent)
-                             .addAction(R.drawable.play_button, "", resumeServicePendingIntent);
+                             .addAction(R.drawable.play, "", resumeServicePendingIntent);
 
             Notification notification = mBuilder.build();
             startForeground(SOME_ID, notification );
@@ -159,7 +157,7 @@ public class MusicService extends IntentService implements NewSongFromSyncListen
     }
 
     public void playNewSong() {
-        new GetSongByRestTask(this).execute(currentPlaylist);
+        new GetNextSongByRestTask(this).execute(currentPlaylist);
     }
 
     @Override

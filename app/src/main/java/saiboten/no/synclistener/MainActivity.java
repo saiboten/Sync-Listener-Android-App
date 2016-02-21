@@ -114,8 +114,6 @@ public class MainActivity extends FragmentActivity {
         });
 
         musicServiceCommunicator = new MusicServiceCommunicator(this);
-        setupOrConnectToService();
-
     }
 
     public void setupOrConnectToService() {
@@ -155,7 +153,9 @@ public class MainActivity extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        Log.d("MainActivity", "onActivityResult" + resultCode);
+        Log.d(TAG, "ActivityResult: resultCode" + resultCode);
+        Log.d(TAG, "ActivityResult: request code" + requestCode);
+        Log.d(TAG, "ActivityResult: Intent: " + intent);
 
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {

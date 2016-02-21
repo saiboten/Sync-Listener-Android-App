@@ -1,31 +1,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:focusableInTouchMode="true"
-    android:background="@color/turkis"
+    android:background="@drawable/gradient_background"
     android:orientation="vertical"
     tools:context=".MainActivity"
     android:weightSum="1">
 
     <ImageView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="250dp"
         android:layout_weight="0.87"
         android:id="@+id/imageView"
         android:src="@drawable/spotocracylogo"
-        android:contentDescription="@string/logo" />
+        android:contentDescription="@string/logo"
+        android:scaleType="fitXY" />
     >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:id="@+id/songinfo" />
+        android:id="@+id/songinfo"
+        android:text="Velg en spilleliste"
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/playlist"
@@ -37,14 +40,18 @@
         android:background="@color/white"
         android:text=""/>
 
+   <!--<Spinner
+        android:id="@+id/planets_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />-->
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/linearLayout"
-        android:layout_marginTop="20dp"
-        android:weightSum="1"
-        android:padding="20dp">
+        android:weightSum="10"
+        android:padding="15dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,18 +59,25 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/defaultTime"
             android:id="@+id/timePlayed"
-            android:layout_weight="0.1"
-            android:padding="10dp"
-             />
+            android:layout_weight="1"
+            android:textAlignment="center"
+            android:textSize="20sp" />
 
-        <ProgressBar
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:progress="0"
-            android:id="@+id/progressBar"
-            android:layout_weight="0.8"
-            android:padding="10dp"/>
+            android:layout_height="fill_parent"
+            android:layout_weight="8">
+
+            <ProgressBar
+                android:layout_width="fill_parent"
+                android:layout_height="10dp"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:progress="0"
+                android:id="@+id/progressBar"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -71,28 +85,37 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/defaultTime"
             android:id="@+id/song_length"
-            android:layout_weight="0.1"
-            android:padding="10dp"/>
+            android:layout_weight="1"
+            android:textAlignment="center"
+            android:paddingLeft="10dp"
+            android:textSize="20sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1">
+        android:layout_height="wrap_content">
 
-        <ImageButton
-            android:gravity="center_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            android:src="@drawable/synchronize"
-            android:id="@+id/button"
-            android:contentDescription="@string/playPause"
-            android:layout_weight="0.1"/>
+        <RelativeLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ImageButton
+                android:gravity="center_horizontal"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/synchronize"
+                android:id="@+id/play_or_pause"
+                android:contentDescription="@string/playOrPause"
+                android:background="#00000000"
+                android:scaleType="fitXY"
+                android:layout_alignParentEnd="true"
+                 android:layout_alignParentRight="true"/>
+        </RelativeLayout>
+
 
     </LinearLayout>
 

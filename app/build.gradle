@@ -9,8 +9,8 @@ android {
         applicationId "no.saiboten.synclistener"
         minSdkVersion 14
         targetSdkVersion 20
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "0.6"
     }
     buildTypes {
         release {
@@ -29,6 +29,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.spotify.sdk:spotifysdk:1.0.0-beta8@aar' // NOTE: Version must match!
+    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta10@aar' // NOTE: Version must match!
+    compile 'com.spotify.sdk:spotify-player:1.0.0-beta10@aar' // NOTE: Version must match!
     compile "com.android.support:support-v4:18.0.+"
 }

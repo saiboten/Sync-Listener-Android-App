@@ -19,11 +19,11 @@ import saiboten.no.synclistener.callbacks.NewSongFromSyncListenerCallback;
 /**
  * Created by Tobias on 15.03.2015.
  */
-public class GetSongByRestTask extends AsyncTask<String, Void, String> {
+public class GetNextSongByRestTask extends AsyncTask<String, Void, String> {
 
         private NewSongFromSyncListenerCallback newSongFromSyncListenerCallback;
 
-        public GetSongByRestTask(NewSongFromSyncListenerCallback newSongFromSyncListenerCallback) {
+        public GetNextSongByRestTask(NewSongFromSyncListenerCallback newSongFromSyncListenerCallback) {
             this.newSongFromSyncListenerCallback = newSongFromSyncListenerCallback;
         }
 
