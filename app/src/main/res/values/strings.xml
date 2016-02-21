@@ -16,6 +16,7 @@
     <string name="playlistSet">playlistSet</string>
     <string name="synchronize">Synchronize Player</string>
     <string name="playOrPause">Play or pause</string>
+    <string name="title_activity_setup">SetupActivity</string>
 
 
 </resources>

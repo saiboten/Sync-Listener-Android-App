@@ -43,7 +43,7 @@ MERGED from com.spotify.sdk:spotify-player:1.0.0-beta10:29:5
 		ADDED from AndroidManifest.xml:13:9
 	android:theme
 		ADDED from AndroidManifest.xml:15:9
-service#saiboten.no.synclistener.MusicService
+service#saiboten.no.synclistener.musicservice.MusicService
 ADDED from AndroidManifest.xml:17:9
 	android:name
 		ADDED from AndroidManifest.xml:17:18
@@ -65,7 +65,7 @@ action#SEEK_POSITION
 ADDED from AndroidManifest.xml:22:17
 	android:name
 		ADDED from AndroidManifest.xml:22:25
-activity#saiboten.no.synclistener.MainActivity
+activity#saiboten.no.synclistener.mainscreen.MainActivity
 ADDED from AndroidManifest.xml:26:9
 	android:label
 		ADDED from AndroidManifest.xml:28:13

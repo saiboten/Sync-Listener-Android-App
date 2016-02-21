@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import saiboten.no.synclistener.MainActivity;
+import saiboten.no.synclistener.mainscreen.MainActivity;
 
 /**
  * Created by Tobias on 15.03.2015.
