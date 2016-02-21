@@ -60,9 +60,4 @@ public class WebViewFragment extends Fragment {
             webView.loadUrl("http://spotocracy.net/p/"+playlist);
         }
     }
-
-    public static Fragment newInstance() {
-        WebViewFragment webViewFragment = new WebViewFragment();
-        return webViewFragment;
-    }
 }

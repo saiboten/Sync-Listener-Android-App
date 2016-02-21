@@ -1,5 +1,7 @@
 package saiboten.no.synclistener.dagger;
 
+import android.webkit.WebView;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -8,8 +10,10 @@ import saiboten.no.synclistener.activity.BaseActivity;
 import saiboten.no.synclistener.intro.SetupActivity;
 import saiboten.no.synclistener.mainscreen.MainActivity;
 import saiboten.no.synclistener.mainscreen.MusicPlayerFragment;
+import saiboten.no.synclistener.mainscreen.ViewFragmentsPagerAdapter;
 import saiboten.no.synclistener.musicservicecommunicator.MusicServiceCommunicator;
 import saiboten.no.synclistener.spotifytokenservice.SpotifyTokenSaveService;
+import saiboten.no.synclistener.synclisterwebview.WebViewFragment;
 
 /**
  * Created by Tobias on 21.02.2016.
@@ -31,6 +35,16 @@ public class DaggerModule {
     @Provides @Singleton
     public SpotifyTokenSaveService getSpotifyTokenSaveService() {
         return new SpotifyTokenSaveService();
+    }
+
+    @Provides @Singleton
+    public MusicPlayerFragment getMusicPlayerFragment(MusicServiceCommunicator musicServiceCommunicator) {
+        return new MusicPlayerFragment(musicServiceCommunicator);
+    }
+
+    @Provides @Singleton
+    public WebViewFragment getWebViewFragment() {
+        return new WebViewFragment();
     }
 
 }

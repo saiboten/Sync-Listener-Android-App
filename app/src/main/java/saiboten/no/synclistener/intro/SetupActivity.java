@@ -58,6 +58,8 @@ public class SetupActivity extends BaseActivity {
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME,0);
         String accessToken = sharedPreferences.getString(ACCESS_TOKEN,null);
 
+        Log.d(TAG, "Current access token : " + accessToken);
+
         //Should also validate that it works, in some way ?
 
         if(StringUtils.isNotEmpty(accessToken)) {
@@ -84,9 +86,11 @@ public class SetupActivity extends BaseActivity {
                 case TOKEN:
                     Log.d("MainActivity", "Token granted: " + response);
                     spotifyTokenSaveService.storeAuthenticationResult(response);
+
                     SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME,0);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString(ACCESS_TOKEN, response.getAccessToken());
+                    editor.commit();
 
                     Intent mainActivityIntent = new Intent(this, MainActivity.class);
                     startActivity(mainActivityIntent);

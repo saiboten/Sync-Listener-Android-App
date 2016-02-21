@@ -72,11 +72,11 @@ public class MusicPlayerFragment extends Fragment implements NewSongFromSyncList
 
     private final static String TAG = "MusicPlayerFragment";
 
+    private MusicServiceCommunicator musicServiceCommunicator;
+
     @Inject
-    public MusicServiceCommunicator musicServiceCommunicator;
-
-    public MusicPlayerFragment() {
-
+    public MusicPlayerFragment(MusicServiceCommunicator musicServiceCommunicator) {
+        this.musicServiceCommunicator = musicServiceCommunicator;
     }
 
     public void pause() {
@@ -275,11 +275,6 @@ public class MusicPlayerFragment extends Fragment implements NewSongFromSyncList
         catch(JSONException jsonException) {
             Log.d(TAG, "This aint json, maybe? " + jsonException.getMessage());
         }
-    }
-
-    public static Fragment newInstance() {
-        MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
-        return musicPlayerFragment;
     }
 
     private class UpdateTime implements Runnable {

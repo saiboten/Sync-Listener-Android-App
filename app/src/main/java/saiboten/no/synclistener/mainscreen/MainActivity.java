@@ -32,6 +32,12 @@ public class MainActivity extends FragmentActivity {
     @Inject
     public MusicServiceCommunicator musicServiceCommunicator;
 
+    @Inject
+    MusicPlayerFragment musicPlayerFragment;
+
+    @Inject
+    WebViewFragment webViewFragment;
+
     private final static String TAG = "MainActivity";
 
     //Your activity will respond to this action String
@@ -87,7 +93,7 @@ public class MainActivity extends FragmentActivity {
 
         mViewFragmentsPagerAdapter =
                 new ViewFragmentsPagerAdapter(
-                        getSupportFragmentManager());
+                        getSupportFragmentManager(), webViewFragment, musicPlayerFragment);
         mViewPager = (ViewPager) findViewById(R.id.pager);
 
         mViewPager.setAdapter(mViewFragmentsPagerAdapter);
@@ -113,8 +119,6 @@ public class MainActivity extends FragmentActivity {
                 // Not in use
             }
         });
-
-
     }
 
     public MusicServiceCommunicator getMusicServiceCommunicator() {
