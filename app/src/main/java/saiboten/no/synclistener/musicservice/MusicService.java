@@ -17,9 +17,9 @@ import com.spotify.sdk.android.player.Spotify;
 
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.mainscreen.MainActivity;
+import saiboten.no.synclistener.synclistenerrest.NextSongService;
 import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclistenerCallback;
 import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
-import saiboten.no.synclistener.synclistenerrest.NextSongService;
 
 /**
  * Created by Tobias on 27.03.2015.

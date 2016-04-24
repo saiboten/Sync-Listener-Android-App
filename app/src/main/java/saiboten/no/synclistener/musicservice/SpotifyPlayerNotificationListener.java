@@ -86,7 +86,7 @@ public class SpotifyPlayerNotificationListener implements
 
     @Override
     public void onPlaybackError(ErrorType errorType, String errorDetails) {
-        Log.d(TAG, "Playback error received: " + errorType.name());
+        Log.d(TAG, "Playback error received: " + errorType.name() + ", details: " + errorDetails);
     }
 
     @Override

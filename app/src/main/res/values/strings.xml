@@ -17,6 +17,7 @@
     <string name="synchronize">Synchronize Player</string>
     <string name="playOrPause">Play or pause</string>
     <string name="title_activity_setup">SetupActivity</string>
+    <string name="spotocracy_font_family">Clarendon BT</string>
 
 
 </resources>

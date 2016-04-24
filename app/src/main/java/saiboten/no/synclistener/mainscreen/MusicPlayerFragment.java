@@ -38,25 +38,25 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
 
     private final static String TAG = "MusicPlayerFragment";
 
-    @Bind(R.id.MusicPlayFragment_ProgressBar_progressBar)
-    public ProgressBar songProgress;
+    @Bind(R.id.MusicPlayerFragment_ProgressBar_progressBar)
+    public ProgressBar progressBar;
 
-    @Bind(R.id.play_or_pause)
+    @Bind(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
     public ImageButton pauseOrPlayButton;
 
-    @Bind(R.id.timePlayed)
+    @Bind(R.id.MusicPlayerFragment_TextView_timePlayed)
     public TextView timePlayed;
 
-    @Bind(R.id.song_length)
+    @Bind(R.id.MusicPlayerFragment_TextView_songLength)
     public TextView songLength;
 
-    @Bind(R.id.playlist)
+    @Bind(R.id.MusicPlayerFragment_EditText_playlist)
     public EditText playlist;
 
-    @Bind(R.id.songinfo)
+    @Bind(R.id.MusicPlayerFragment_TextView_songinfo)
     public TextView songinfo;
 
-    @Bind(R.id.imageView)
+    @Bind(R.id.MusicPlayerFragment_ImageView_imageView)
     public ImageView imageView;
 
     public View rootView;
@@ -137,7 +137,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         //TODO save some state here maybe?
     }
 
-    @OnClick(R.id.play_or_pause)
+    @OnClick(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
     public void playOrPauseClick() {
         MainActivity mainActivity = (MainActivity) getActivity();
         if(paused) {
@@ -234,6 +234,11 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     @Override
     public void songFromSpotifySuccessCallback(SpotifySyncNiceSongInfoModel spotifySongInfoModel) {
         Log.d(TAG, "Spotify song info: " + spotifySongInfoModel);
+
+        songLength.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        timePlayed.setVisibility(View.VISIBLE);
+
         songinfo.setText(spotifySongInfoModel.getArtist() + " - " + spotifySongInfoModel.getSong());
         new DownloadImageTask(imageView).execute(spotifySongInfoModel.getUrlToImage());
     }
@@ -254,7 +259,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
                 if(songDurationSeconds != 0) {
                     int progress = (secondsPlayedTotal * 100 / songDurationSeconds);
                     //Log.d("MusicPlayerFragment", "Updating progress status: " + progress);
-                    songProgress.setProgress(progress);
+                    progressBar.setProgress(progress);
                 }
 
                 timePlayed.setText(secondsPlayedTotal / 60 + ":" + String.format("%02d", secondsPlayedTotal % 60));

@@ -12,7 +12,7 @@
     tools:context=".mainscreen.MainActivity">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/MusicPlayerFragment_ImageView_imageView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
@@ -29,7 +29,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/songinfo"
+            android:id="@+id/MusicPlayerFragment_TextView_songinfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -38,7 +38,7 @@
             android:textSize="20sp" />
 
         <EditText
-            android:id="@+id/playlist"
+            android:id="@+id/MusicPlayerFragment_EditText_playlist"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.2"
@@ -58,7 +58,7 @@
             android:weightSum="10">
 
             <TextView
-                android:id="@+id/timePlayed"
+                android:id="@+id/MusicPlayerFragment_TextView_timePlayed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -74,7 +74,7 @@
                 android:orientation="vertical">
 
                 <ProgressBar
-                    android:id="@+id/MusicPlayFragment_ProgressBar_progressBar"
+                    android:id="@+id/MusicPlayerFragment_ProgressBar_progressBar"
                     style="@android:style/Widget.ProgressBar.Horizontal"
                     android:layout_width="fill_parent"
                     android:layout_height="10dp"
@@ -84,7 +84,7 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/song_length"
+                android:id="@+id/MusicPlayerFragment_TextView_songLength"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -108,7 +108,7 @@
                 android:orientation="horizontal">
 
                 <ImageButton
-                    android:id="@+id/play_or_pause"
+                    android:id="@+id/MusicPlayerFragment_ImageButton_play_or_pause"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_alignParentEnd="true"

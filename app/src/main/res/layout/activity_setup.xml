@@ -7,25 +7,41 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/primary3"
     tools:context=".intro.SetupActivity">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:text="Some text that explains what&apos;s happening"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_centerHorizontal="true"
+        android:text="SyncListener"
+        android:textSize="40dp"
+        android:textColor="@color/white"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:fontFamily="@string/spotocracy_font_family" />
+
+    <TextView
+        android:id="@+id/textView_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_marginTop="30dp"
+        android:layout_centerHorizontal="false"
+        android:textColor="@color/white"
+        android:text="For å kunne bruke SyncListener kreves det at du har Spotify Premium. For å knytte sammen din spotify-konto med SyncListener trykker du på oppsett-knappen under."
+        android:textSize="20dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:fontFamily="@string/spotocracy_font_family" />
 
     <Button
         android:id="@+id/setup_activity_setup_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/textView"
-        android:layout_marginTop="122dp"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:background="@color/primary1"
+        android:textColor="@color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:text="Setup" />
 </RelativeLayout>

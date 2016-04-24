@@ -75,6 +75,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "MainActivity onCreate");
 
         this.setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
