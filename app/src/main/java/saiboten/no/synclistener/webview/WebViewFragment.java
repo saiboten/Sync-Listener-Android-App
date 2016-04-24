@@ -1,4 +1,4 @@
-package saiboten.no.synclistener.synclisterwebview;
+package saiboten.no.synclistener.webview;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import saiboten.no.synclistener.R;
 
 /**
@@ -16,48 +18,43 @@ import saiboten.no.synclistener.R;
  */
 public class WebViewFragment extends Fragment {
 
-    private View rootView;
+    private final String TAG = "WebViewFragment";
+
+    @Bind(R.id.webView)
+    WebView webView;
 
     private String selectedPlaylist = "";
-
-    public WebViewFragment() {
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        // The last two arguments ensure LayoutParams are inflated
-        // properly.
+        Log.d(TAG, "Fragment CREATED!");
 
-        Log.d("DemoObjectFragmetn", "Fragment CREATED!");
-
-        rootView = inflater.inflate(
+        View view = inflater.inflate(
                 R.layout.webview_layout, container, false);
-        WebView webView = (WebView) rootView.findViewById(R.id.webView);
+        ButterKnife.bind(this, view);
+
         webView.getSettings().setJavaScriptEnabled(true);
 
-        webView.setWebViewClient(new WebViewClient(){
+        webView.setWebViewClient(new WebViewClient() {
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url){
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 view.loadUrl(url);
                 return true;
             }
         });
 
         webView.loadUrl("http://spotocracy.net/");
-        return rootView;
+        return view;
     }
 
     public void changeUrl(String playlist) {
         if(playlist.equals(this.selectedPlaylist)) {
             Log.d("WebViewFragment", "Playlist not changed. Not loading url");
-        }
-        else {
+        } else {
             Log.d("WebViewFragment", "Playlist changed. Loading new url");
-            WebView webView = (WebView) rootView.findViewById(R.id.webView);
-            webView.loadUrl("http://spotocracy.net/p/"+playlist);
+            webView.loadUrl("http://spotocracy.net/p/" + playlist);
         }
     }
 }

@@ -2,19 +2,19 @@ package saiboten.no.synclistener.mainscreen;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
 /**
  * Created by Tobias on 18.04.2015.
  */
-public abstract class SmartFragmentStatePagerAdapter extends FragmentStatePagerAdapter {
+public abstract class SmartFragmentStatePagerAdapter extends FragmentPagerAdapter {
     // Sparse array to keep track of registered fragments in memory
     private SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>();
 
-    public SmartFragmentStatePagerAdapter(FragmentManager fragmentManager) {
-        super(fragmentManager);
+    public SmartFragmentStatePagerAdapter(FragmentManager fm) {
+        super(fm);
     }
 
     // Register the fragment when the item is instantiated

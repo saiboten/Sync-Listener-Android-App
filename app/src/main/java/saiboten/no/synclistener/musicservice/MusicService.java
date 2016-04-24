@@ -15,44 +15,45 @@ import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import saiboten.no.synclistener.mainscreen.MainActivity;
 import saiboten.no.synclistener.R;
-import saiboten.no.synclistener.callbacks.NewSongFromSyncListenerCallback;
-import saiboten.no.synclistener.tasks.GetNextSongByRestTask;
+import saiboten.no.synclistener.mainscreen.MainActivity;
+import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclistenerCallback;
+import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
+import saiboten.no.synclistener.synclistenerrest.NextSongService;
 
 /**
  * Created by Tobias on 27.03.2015.
  */
-public class MusicService extends IntentService implements NewSongFromSyncListenerCallback {
+public class MusicService extends IntentService implements NextSongFromSynclistenerCallback {
 
     private static final String CLIENT_ID = "b60120e0052b4973b2a89fab00925019";
 
     private static final int SOME_ID = 123456;
 
+    private final static String TAG = "MusicService";
+
+    SpotifyPlayerWrapper spotifyPlayerWrapper;
+
     private String currentPlaylist = null;
+
+    private HeadSetDisconnectedBroadcastReceiver receiver;
+
+    private boolean headsetConnected = false;
+
+    private NextSongService nextSongService;
+
+    public MusicService() {
+        super("no.saiboten.MusicService");
+        nextSongService = new NextSongService();
+    }
 
     public SpotifyPlayerWrapper getSpotifyPlayerWrapper() {
         return spotifyPlayerWrapper;
     }
 
-    SpotifyPlayerWrapper spotifyPlayerWrapper;
-
-    private HeadSetDisconnectedBroadcastReceiver receiver;
-
-    private final static String TAG = "MusicService";
-
-    private boolean headsetConnected = false;
-
-    public MusicService() {
-        super("no.saiboten.MusicService");
-   }
-
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.e(TAG,"This is never called. Right?");
+        Log.e(TAG, "This is never called. Right?");
     }
 
     public String getCurrentPlaylist() {
@@ -65,89 +66,125 @@ public class MusicService extends IntentService implements NewSongFromSyncListen
         Log.i(TAG, "Received start id " + startId + ": " + intent);
 
         if(intent.getAction() != null && intent.getAction().equals("STOP_SERVICE")) {
-            Log.d(TAG, "Stopping service");
-            spotifyPlayerWrapper.getPlayer().shutdown();
-            stopSelf();
-        }
-        else if(intent.getAction().equals("PLAY")) {
-            Log.d(TAG, "Playing song");
-            currentPlaylist = intent.getStringExtra("playlist");
-            getSpotifyPlayerWrapper().play(intent.getStringExtra("song"));
-        }
-        else if(intent.getAction().equals("PAUSE")) {
-            Log.d(TAG, "Pausing song");
-
-            Intent pause = new Intent(MainActivity.PAUSE);
-            pause.setAction("no.saiboten.synclistener.PAUSE");
-            LocalBroadcastManager.getInstance(this).sendBroadcast(pause);
-
-            getSpotifyPlayerWrapper().pause();
-        }
-        else if(intent.getAction().equals("RESUME")) {
-            Intent resume = new Intent(MainActivity.RESUME);
-            resume.setAction("no.saiboten.synclistener.RESUME");
-            LocalBroadcastManager.getInstance(this).sendBroadcast(resume);
-
-            Log.d(TAG, "Resuming song");
-            getSpotifyPlayerWrapper().resume();
-        }
-        else if(intent.getAction().equals("SEEK_POSITION")) {
-            Log.d(TAG, "Seeking to another position");
-            getSpotifyPlayerWrapper().seekToPosition(intent.getIntExtra("position", 0));
-        }
-        else {
-            IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-            receiver = new HeadSetDisconnectedBroadcastReceiver();
-            registerReceiver( receiver, receiverFilter );
-
-            Log.d(TAG, "Access token: " + intent.getStringExtra("accessToken"));
-            Intent stopServiceIntent = new Intent(this,MusicService.class);
-            stopServiceIntent.setAction("STOP_SERVICE");
-
-            Intent pauseServiceIntent = new Intent(this,MusicService.class);
-            pauseServiceIntent.setAction("PAUSE");
-
-            Intent resumeServiceIntent = new Intent(this,MusicService.class);
-            resumeServiceIntent.setAction("RESUME");
-
-            Intent openSyncListenerIntent = new Intent(this,MainActivity.class);
-            openSyncListenerIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            PendingIntent openSyncListener = PendingIntent.getActivity(getApplicationContext(), 12345, openSyncListenerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-
-            PendingIntent stopServicePendingIntent = PendingIntent.getService(getApplicationContext(),12345, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            PendingIntent pauseServicePendingIntent = PendingIntent.getService(getApplicationContext(),12345, pauseServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            PendingIntent resumeServicePendingIntent = PendingIntent.getService(getApplicationContext(),12345, resumeServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.spotocracylogo)
-                            .setContentTitle("Sync Listener")
-                            .setContentText("Swipe ned for avspillingsvalg")
-                            .setContentIntent(openSyncListener)
-                            .addAction(R.drawable.stop, "", stopServicePendingIntent)
-                              .addAction(R.drawable.pause, "", pauseServicePendingIntent)
-                             .addAction(R.drawable.play, "", resumeServicePendingIntent);
-
-            Notification notification = mBuilder.build();
-            startForeground(SOME_ID, notification );
-
-            Log.d(TAG, "MusicService created successfully. Notifications ready");
-
-            Player player = null;
-            spotifyPlayerWrapper = new SpotifyPlayerWrapper();
-            SpotifyPlayerNotificationListener spotifyPlayerNotificationListener = new SpotifyPlayerNotificationListener(this);
-
-            Log.d(TAG, "Spotify player wrapper created. Notification listener created");
-
-            Config playerConfig = new Config(getApplicationContext(), intent.getStringExtra("accessToken"), CLIENT_ID);
-
-            Log.d(TAG, "Config created");
-            spotifyPlayerWrapper.setPlayer(Spotify.getPlayer(playerConfig, this, spotifyPlayerNotificationListener));
-            Log.d(TAG, "Spotify player ready");
+            stopService();
+        } else if(intent.getAction().equals("PLAY")) {
+            play(intent);
+        } else if(intent.getAction().equals("PAUSE")) {
+            pause();
+        } else if(intent.getAction().equals("RESUME")) {
+            resume();
+        } else if(intent.getAction().equals("SEEK_POSITION")) {
+            seekPosition(intent);
+        } else {
+            setup(intent);
         }
 
         return START_NOT_STICKY;
+    }
+
+    private void setup(Intent intent) {
+        IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        receiver = new HeadSetDisconnectedBroadcastReceiver();
+        registerReceiver(receiver, receiverFilter);
+
+        Log.d(TAG, "Access token: " + intent.getStringExtra("accessToken"));
+        Intent stopServiceIntent = new Intent(this, MusicService.class);
+        stopServiceIntent.setAction("STOP_SERVICE");
+
+        Intent pauseServiceIntent = new Intent(this, MusicService.class);
+        pauseServiceIntent.setAction("PAUSE");
+
+        Intent resumeServiceIntent = new Intent(this, MusicService.class);
+        resumeServiceIntent.setAction("RESUME");
+
+        Intent openSyncListenerIntent = new Intent(this, MainActivity.class);
+        openSyncListenerIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent openSyncListener = PendingIntent.getActivity(getApplicationContext(), 12345, openSyncListenerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent stopServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12346, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pauseServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12347, pauseServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resumeServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12348, resumeServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.spotocracylogo)
+                        .setContentTitle("Sync Listener")
+                        .setContentText("Swipe ned for avspillingsvalg")
+                        .setContentIntent(openSyncListener)
+                        .addAction(R.drawable.stop, "", stopServicePendingIntent)
+                        .addAction(R.drawable.pause, "", pauseServicePendingIntent)
+                        .addAction(R.drawable.play, "", resumeServicePendingIntent);
+
+        Notification notification = mBuilder.build();
+        startForeground(SOME_ID, notification);
+
+        Log.d(TAG, "MusicService created successfully. Notifications ready");
+
+        Player player = null;
+        spotifyPlayerWrapper = new SpotifyPlayerWrapper();
+        SpotifyPlayerNotificationListener spotifyPlayerNotificationListener = new SpotifyPlayerNotificationListener(this);
+
+        Log.d(TAG, "Spotify player wrapper created. Notification listener created");
+
+        Config playerConfig = new Config(getApplicationContext(), intent.getStringExtra("accessToken"), CLIENT_ID);
+
+        Log.d(TAG, "Config created");
+        spotifyPlayerWrapper.setPlayer(Spotify.getPlayer(playerConfig, this, spotifyPlayerNotificationListener));
+        Log.d(TAG, "Spotify player ready");
+    }
+
+    private void seekPosition(Intent intent) {
+        Log.d(TAG, "Seeking to another position");
+        getSpotifyPlayerWrapper().seekToPosition(intent.getIntExtra("position", 0));
+    }
+
+    private void resume() {
+        Intent resume = new Intent(MainActivity.RESUME);
+        resume.setAction("no.saiboten.synclistener.RESUME");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(resume);
+
+        Log.d(TAG, "Resuming song");
+        getSpotifyPlayerWrapper().resume();
+    }
+
+    private void pause() {
+        Log.d(TAG, "Pausing song");
+
+        Intent pause = new Intent(MainActivity.PAUSE);
+        pause.setAction("no.saiboten.synclistener.PAUSE");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(pause);
+
+        getSpotifyPlayerWrapper().pause();
+    }
+
+    private void play(Intent intent) {
+        String songToPlay = intent.getStringExtra("song");
+        currentPlaylist = intent.getStringExtra("playlist");
+
+        Log.d(TAG, "Playing song: " + songToPlay + ", from playlist: " + currentPlaylist);
+
+        getSpotifyPlayerWrapper().play(intent.getStringExtra("song"));
+    }
+
+    private void stopService() {
+        Log.d(TAG, "Stopping service");
+        spotifyPlayerWrapper.getPlayer().shutdown();
+        stopSelf();
+    }
+
+    public void playNewSong() {
+        nextSongService.getNextSong(this,currentPlaylist);
+    }
+
+    @Override
+    public void getNextSongSuccess(SyncListenerSongInfo syncListenerSongInfo) {
+        String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
+        getSpotifyPlayerWrapper().play(nextSong);
+    }
+
+    @Override
+    public void getNextSongFailed() {
+
     }
 
     @Override
@@ -158,35 +195,17 @@ public class MusicService extends IntentService implements NewSongFromSyncListen
         super.onDestroy();
     }
 
-    public void playNewSong() {
-        new GetNextSongByRestTask(this).execute(currentPlaylist);
-    }
-
-    @Override
-    public void newSongCallback(String result) {
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(result);
-            JSONObject song = jsonObject.getJSONObject("song");
-            String nextSong = song.getString("uri");
-            getSpotifyPlayerWrapper().play(nextSong);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     class HeadSetDisconnectedBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+            if(intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                 int state = intent.getIntExtra("state", -1);
-                if (state == 0 && headsetConnected) {
+                if(state == 0 && headsetConnected) {
                     Log.d(TAG, "Headset unplugged");
                     headsetConnected = false;
                     getSpotifyPlayerWrapper().pause();
-                }
-                else if(state == 1 && !headsetConnected) {
+                } else if(state == 1 && !headsetConnected) {
                     Log.d(TAG, "Headset plugged");
                     headsetConnected = true;
                 }

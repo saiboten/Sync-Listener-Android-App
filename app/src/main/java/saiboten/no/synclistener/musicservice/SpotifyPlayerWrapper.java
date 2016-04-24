@@ -5,9 +5,6 @@ import android.util.Log;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerStateCallback;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Tobias on 31.03.2015.
  */
@@ -29,12 +26,12 @@ public class SpotifyPlayerWrapper {
         /* callbacks = new ArrayList<PlayerStateCallback>(); */
     }
 
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
     public Player getPlayer() {
         return this.player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public void resume() {
@@ -46,10 +43,9 @@ public class SpotifyPlayerWrapper {
     }
 
     public void seekToPosition(int i) {
-        if(i>3000) {
+        if(i > 3000) {
             this.player.seekToPosition(i);
-        }
-        else {
+        } else {
             Log.d(TAG, "Position " + i + " is less than three seconds. Let's just skip the seek. Probably a new track");
         }
     }

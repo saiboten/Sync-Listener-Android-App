@@ -5,9 +5,6 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.util.Log;
 
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
-
-import saiboten.no.synclistener.mainscreen.MainActivity;
 import saiboten.no.synclistener.musicservice.MusicService;
 
 /**
@@ -17,11 +14,9 @@ public class MusicServiceCommunicator {
 
     private static final String CLIENT_ID = "b60120e0052b4973b2a89fab00925019";
 
-    private Activity mainActivity;
-
-    private MusicService musicService;
-
     private final static String TAG = "MusicServiceComm";
+
+    private Activity mainActivity;
 
     public MusicServiceCommunicator() {
 
@@ -33,8 +28,8 @@ public class MusicServiceCommunicator {
 
     public boolean isMusicServiceRunning() {
         ActivityManager manager = (ActivityManager) mainActivity.getApplicationContext().getSystemService(mainActivity.getApplicationContext().ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("saiboten.no.synclistener.musicservice.MusicService".equals(service.service.getClassName())) {
+        for(ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if("saiboten.no.synclistener.musicservice.MusicService".equals(service.service.getClassName())) {
                 Log.d(TAG, "Music Service is running.");
                 return true;
             }

@@ -2,124 +2,124 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@drawable/gradient_background"
+    android:focusableInTouchMode="true"
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:focusableInTouchMode="true"
-    android:background="@drawable/gradient_background"
-    android:orientation="horizontal"
     tools:context=".mainscreen.MainActivity">
 
     <ImageView
+        android:id="@+id/imageView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:id="@+id/imageView"
-        android:src="@drawable/spotocracylogo"
         android:contentDescription="@string/logo"
-        android:scaleType="fitXY" />
+        android:scaleType="fitXY"
+        android:src="@drawable/spotocracylogo" />
     >
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="10dp"
         android:layout_weight="1"
-        android:layout_margin="10dp">
+        android:orientation="vertical">
 
         <TextView
+            android:id="@+id/songinfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:padding="10dp"
-            android:id="@+id/songinfo"
             android:text="Velg en spilleliste"
-            android:textSize="20sp"
-            android:layout_weight="1" />
+            android:textSize="20sp" />
 
         <EditText
             android:id="@+id/playlist"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:layout_weight="0.2"
+            android:background="@color/white"
             android:hint="@string/playlistname"
             android:inputType="textEmailAddress"
-            android:background="@color/white"
-            android:text=""
-            android:layout_weight="0.2" />
+            android:padding="10dp"
+            android:text="" />
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:id="@+id/linearLayout"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/linearLayout"
-            android:weightSum="10"
+            android:layout_weight="1"
+            android:orientation="horizontal"
             android:padding="15dp"
-            android:layout_weight="1">
+            android:weightSum="10">
 
             <TextView
+                android:id="@+id/timePlayed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/defaultTime"
-                android:id="@+id/timePlayed"
                 android:layout_weight="1"
+                android:text="@string/defaultTime"
                 android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textSize="20sp" />
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_weight="8">
+                android:layout_weight="8"
+                android:orientation="vertical">
 
                 <ProgressBar
+                    android:id="@+id/MusicPlayFragment_ProgressBar_progressBar"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
                     android:layout_width="fill_parent"
                     android:layout_height="10dp"
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:progress="0"
-                    android:id="@+id/progressBar"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginTop="10dp" />
+                    android:layout_marginTop="10dp"
+                    android:progress="0" />
             </LinearLayout>
 
             <TextView
+                android:id="@+id/song_length"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/defaultTime"
-                android:id="@+id/song_length"
                 android:layout_weight="1"
-                android:textAlignment="center"
                 android:paddingLeft="10dp"
+                android:text="@string/defaultTime"
+                android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textSize="20sp" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
             <RelativeLayout
-                android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+                android:layout_height="fill_parent"
+                android:orientation="horizontal">
 
                 <ImageButton
-                    android:gravity="center_horizontal"
+                    android:id="@+id/play_or_pause"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:adjustViewBounds="true"
-                    android:src="@drawable/synchronize"
-                    android:id="@+id/play_or_pause"
-                    android:contentDescription="@string/playOrPause"
-                    android:background="#00000000"
-                    android:scaleType="fitXY"
-                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
+                    android:layout_centerVertical="true"
+                    android:adjustViewBounds="true"
+                    android:background="#00000000"
+                    android:contentDescription="@string/playOrPause"
+                    android:gravity="center_horizontal"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/synchronize" />
             </RelativeLayout>
 
 

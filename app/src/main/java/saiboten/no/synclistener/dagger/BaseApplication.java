@@ -1,19 +1,18 @@
 package saiboten.no.synclistener.dagger;
 
-
 import android.app.Application;
-import dagger.ObjectGraph;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import dagger.ObjectGraph;
 
 public class BaseApplication extends Application {
     private ObjectGraph graph;
 
-    @Override public void onCreate() {
+    @Override
+    public void onCreate() {
         super.onCreate();
-
         graph = ObjectGraph.create(getModules().toArray());
     }
 

@@ -1,6 +1,5 @@
 package saiboten.no.synclistener.mainscreen;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,51 +15,61 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
-
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import saiboten.no.synclistener.R;
-import saiboten.no.synclistener.callbacks.NewSongFromSyncListenerCallback;
-import saiboten.no.synclistener.musicservicecommunicator.MusicServiceCommunicator;
+import saiboten.no.synclistener.spotifysonginfo.SongInfoServiceFromSpotify;
+import saiboten.no.synclistener.spotifysonginfo.callback.SongInfoFromSpotifyCallback;
+import saiboten.no.synclistener.spotifysonginfo.model.SpotifySyncNiceSongInfoModel;
+import saiboten.no.synclistener.synclistenerrest.NextSongService;
+import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclistenerCallback;
+import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
 import saiboten.no.synclistener.tasks.DownloadImageTask;
-import saiboten.no.synclistener.tasks.GetNextSongByRestTask;
-import saiboten.no.synclistener.tasks.GetSongInfoByRestTask;
 
-public class MusicPlayerFragment extends Fragment implements NewSongFromSyncListenerCallback {
-    public static final String ARG_OBJECT = "object";
+public class MusicPlayerFragment extends Fragment implements NextSongFromSynclistenerCallback, SongInfoFromSpotifyCallback {
 
-    private ProgressBar songProgress;
+    public static final String ACCESS_TOKEN = "access_token";
 
-    private ImageButton pauseOrPlayButton;
+    private static final String PREFS_NAME = "SyncListenerAccessToken";
 
-    private TextView timePlayed;
+    private final static String TAG = "MusicPlayerFragment";
 
+    @Bind(R.id.MusicPlayFragment_ProgressBar_progressBar)
+    public ProgressBar songProgress;
+
+    @Bind(R.id.play_or_pause)
+    public ImageButton pauseOrPlayButton;
+
+    @Bind(R.id.timePlayed)
+    public TextView timePlayed;
+
+    @Bind(R.id.song_length)
     public TextView songLength;
 
-    private EditText playlist;
+    @Bind(R.id.playlist)
+    public EditText playlist;
 
-    private TextView songinfo;
+    @Bind(R.id.songinfo)
+    public TextView songinfo;
 
-    private ImageView imageView;
+    @Bind(R.id.imageView)
+    public ImageView imageView;
 
     public View rootView;
 
-    private Handler handler = new Handler();
-
     public int songDurationSeconds = 100;
+
+    MainActivity mainActivity;
+
+    private Handler handler = new Handler();
 
     private int secondsPlayedTotal = 0;
 
     private String playingSong = null;
-
-    private static final String PREFS_NAME = "SyncListenerAccessToken";
-
-    public static final String ACCESS_TOKEN = "access_token";
 
     private boolean timeToSeek = false;
 
@@ -70,122 +79,87 @@ public class MusicPlayerFragment extends Fragment implements NewSongFromSyncList
 
     private boolean handlerInitialized = false;
 
-    private final static String TAG = "MusicPlayerFragment";
-
-    private MusicServiceCommunicator musicServiceCommunicator;
-
-    @Inject
-    public MusicPlayerFragment(MusicServiceCommunicator musicServiceCommunicator) {
-        this.musicServiceCommunicator = musicServiceCommunicator;
-    }
-
-    public void pause() {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        if(mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
-            pauseOrPlayButton.setImageResource(R.drawable.play);
-            paused = true;
-        }
-        else {
-            //mainActivity.setupOrConnectToService();
-        }
-
-    }
-
-    public void resume() {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        if(mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
-            pauseOrPlayButton.setImageResource(R.drawable.pause);
-            paused = false;
-        }
-        else {
-            //mainActivity.setupOrConnectToService();
-        }
-
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
+
+        mainActivity = (MainActivity) getActivity();
 
         if(!handlerInitialized) {
             handlerInitialized = true;
             new android.os.Handler().postDelayed(new UpdateTime(), 1000);
         }
 
-        this.musicServiceCommunicator.setActivity(getActivity());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG,"onCreateView");
+        Log.d(TAG, "onCreateView");
 
         rootView = inflater.inflate(
                 R.layout.swipeviewfragment, container, false);
+        ButterKnife.bind(this, rootView);
 
-        songProgress = (ProgressBar) rootView.findViewById(R.id.progressBar);
-        timePlayed = (TextView) rootView.findViewById(R.id.timePlayed);
-        playlist = (EditText) rootView.findViewById(R.id.playlist);
-        pauseOrPlayButton = (ImageButton) rootView.findViewById(R.id.play_or_pause);
-
-        songLength = (TextView) rootView.findViewById(R.id.song_length);
-
-        imageView = (ImageView) rootView.findViewById(R.id.imageView);
-        songinfo = (TextView) rootView.findViewById(R.id.songinfo);
-
-        setupClickListeners();
-
-        Activity context = getActivity();
-        SharedPreferences sharedPref = context.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = mainActivity.getPreferences(Context.MODE_PRIVATE);
         String previousPlaylist = sharedPref.getString(getString(R.string.playlist), "");
-        Set<String> previousPlaylists = sharedPref.getStringSet(getString(R.string.playlistSet), new HashSet<String>());
-
-        //Spinner spinner = (Spinner) rootView.findViewById(R.id.planets_spinner);
-        //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, (String[]) previousPlaylists.toArray());
-        //spinner.setAdapter(arrayAdapter);
 
         Log.d(TAG, "The stored playlist: " + previousPlaylist);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
-        this.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
+
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if(!mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
+            mainActivity.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
+        }
 
         playlist.setText(previousPlaylist);
-        setInfo();
         return rootView;
     }
 
+    public void pause() {
+        if(mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
+            pauseOrPlayButton.setImageResource(R.drawable.play);
+            paused = true;
+        }
+    }
 
-    public void setupClickListeners() {
+    public void resume() {
+        if(mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
+            pauseOrPlayButton.setImageResource(R.drawable.pause);
+            paused = false;
+        }
+    }
 
-        pauseOrPlayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MainActivity mainActivity = (MainActivity) getActivity();
-                if(paused) {
-                    String playlistText = playlist.getText().toString();
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        //TODO save some state here maybe?
+    }
 
-                    if (playlistText != null && !playlistText.equals("")) {
-                        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                        Set<String> previousPlaylists = sharedPref.getStringSet(getString(R.string.playlistSet), new HashSet<String>());
+    @OnClick(R.id.play_or_pause)
+    public void playOrPauseClick() {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if(paused) {
+            String playlistText = playlist.getText().toString();
 
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        Log.d(TAG,"Playlist being saved: " + playlistText);
-                        editor.putString(getString(R.string.playlist), playlistText);
+            if(playlistText != null && !playlistText.equals("")) {
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                Set<String> previousPlaylists = sharedPref.getStringSet(getString(R.string.playlistSet), new HashSet<String>());
 
-                        previousPlaylists.add(playlistText);
-                        editor.putStringSet(getString(R.string.playlistSet), previousPlaylists);
-                        editor.commit();
-                    }
+                SharedPreferences.Editor editor = sharedPref.edit();
+                Log.d(TAG, "Playlist being saved: " + playlistText);
+                editor.putString(getString(R.string.playlist), playlistText);
 
-                    synchronizeViewWithPlaylist();
-                }
-                else {
-                    mainActivity.getMusicServiceCommunicator().pausePlayer();
-                }
-
+                previousPlaylists.add(playlistText);
+                editor.putStringSet(getString(R.string.playlistSet), previousPlaylists);
+                editor.commit();
             }
-        });
+
+            synchronizeViewWithPlaylist();
+        } else {
+            mainActivity.getMusicServiceCommunicator().pausePlayer();
+        }
     }
 
     public void seek() {
@@ -199,12 +173,12 @@ public class MusicPlayerFragment extends Fragment implements NewSongFromSyncList
 
     public void setInfo() {
         MainActivity mainActivity = (MainActivity) this.getActivity();
-        if (mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
+        if(mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
             String playlistText = playlist.getText().toString();
 
-            if (playlistText != null && !playlistText.equals("")) {
+            if(playlistText != null && !playlistText.equals("")) {
                 Log.d(TAG, "Complete url: " + playlistText);
-                new GetNextSongByRestTask(this).execute(playlistText);
+                new NextSongService().getNextSong(this, playlistText);
             }
         }
     }
@@ -216,65 +190,57 @@ public class MusicPlayerFragment extends Fragment implements NewSongFromSyncList
             songDurationSeconds = 0;
             setInfo();
         }
-        else {
-            //mainActivity.setupOrConnectToService();
-        }
+    }
+
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 
     @Override
-    public void newSongCallback(String result) {
-        try {
-            Log.d(TAG, result);
-            JSONObject jsonObject = new JSONObject(result);
-            JSONObject song = jsonObject.getJSONObject("song");
-            JSONObject songTwo = song.getJSONObject("song");
+    public void getNextSongSuccess(SyncListenerSongInfo syncListenerSongInfo) {
+        Log.d(TAG, "Result: " + syncListenerSongInfo);
 
-            String nextSong = songTwo.getString("uri");
-            int songDurationS = songTwo.getInt("songDurationMs");
-            MainActivity mainActivity = (MainActivity) getActivity();
-            mainActivity.getMusicServiceCommunicator().play(nextSong, playlist.getText().toString());
-            this.playingSong = nextSong;
+        String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
+        int songDurationS = syncListenerSongInfo.getSongTop().getSongAgain().getSongDurationMs();
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.getMusicServiceCommunicator().play(nextSong, playlist.getText().toString());
+        this.playingSong = nextSong;
 
-            Log.d(TAG, "Song: " + nextSong);
+        Log.d(TAG, "Song: " + nextSong);
 
-            secondsPlayedTotal = 0;
+        secondsPlayedTotal = 0;
 
-            this.timeToSeek = true;
-            this.seekTime = songTwo.getInt("secondsPlayed");
+        this.timeToSeek = true;
+        this.seekTime = syncListenerSongInfo.getSongTop().getSongAgain().getSecondsPlayed();
 
-            songDurationSeconds = songDurationS;
-            int minutes = (songDurationSeconds) / 60;
-            int seconds = (songDurationSeconds) % 60;
+        songDurationSeconds = songDurationS;
+        int minutes = (songDurationSeconds) / 60;
+        int seconds = (songDurationSeconds) % 60;
 
-            songLength.setText(minutes + ":" + String.format("%02d", seconds));
+        songLength.setText(minutes + ":" + String.format("%02d", seconds));
 
-            String trackId = nextSong.substring(14, nextSong.length());
-            Log.d(TAG, "Track uri: " + trackId);
+        String trackId = nextSong.substring(14, nextSong.length());
+        Log.d(TAG, "Track uri: " + trackId);
 
-            new GetSongInfoByRestTask((MainActivity) getActivity()).execute("https://api.spotify.com/v1/tracks/" + trackId);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        new SongInfoServiceFromSpotify().getSongInfoFromSpotify(this, trackId);
     }
 
-    public void updateSongInfo(String jsonFromWebApi) {
-        Log.d(TAG, "Json: " + jsonFromWebApi);
+    @Override
+    public void getNextSongFailed() {
+        Log.e(TAG, "Could not get the next song to play :-(");
+    }
 
-        try {
-            JSONObject jsonObject = new JSONObject(jsonFromWebApi);
-            String artist = jsonObject.getJSONArray("artists").getJSONObject(0).getString("name");
-            String song = jsonObject.getString("name");
-            songinfo.setText(artist + " - " + song);
+    @Override
+    public void songFromSpotifySuccessCallback(SpotifySyncNiceSongInfoModel spotifySongInfoModel) {
+        Log.d(TAG, "Spotify song info: " + spotifySongInfoModel);
+        songinfo.setText(spotifySongInfoModel.getArtist() + " - " + spotifySongInfoModel.getSong());
+        new DownloadImageTask(imageView).execute(spotifySongInfoModel.getUrlToImage());
+    }
 
-            String urlString = jsonObject.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url");
-            Log.d(TAG, "Url of image: " + urlString);
-
-            new DownloadImageTask(imageView).execute(urlString);
-        }
-        catch(JSONException jsonException) {
-            Log.d(TAG, "This aint json, maybe? " + jsonException.getMessage());
-        }
+    @Override
+    public void songFromSpotifyFailedCallback() {
+        Log.e(TAG, "Could not get song data from spotify :-(");
     }
 
     private class UpdateTime implements Runnable {
@@ -291,7 +257,7 @@ public class MusicPlayerFragment extends Fragment implements NewSongFromSyncList
                     songProgress.setProgress(progress);
                 }
 
-                timePlayed.setText(secondsPlayedTotal/60 + ":" + String.format("%02d", secondsPlayedTotal%60));
+                timePlayed.setText(secondsPlayedTotal / 60 + ":" + String.format("%02d", secondsPlayedTotal % 60));
             }
             new android.os.Handler().postDelayed(new UpdateTime(), 1000);
         }

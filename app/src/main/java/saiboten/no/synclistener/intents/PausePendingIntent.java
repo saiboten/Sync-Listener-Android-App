@@ -7,5 +7,5 @@ import android.content.Intent;
  */
 public class PausePendingIntent extends Intent {
 
-
+    private final static String CREATOR = "???";
 }

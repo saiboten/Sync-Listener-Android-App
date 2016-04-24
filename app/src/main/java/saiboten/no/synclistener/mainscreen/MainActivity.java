@@ -14,37 +14,41 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.widget.EditText;
 
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
-
 import javax.inject.Inject;
 
-import saiboten.no.synclistener.musicservicecommunicator.MusicServiceCommunicator;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.dagger.BaseApplication;
-import saiboten.no.synclistener.synclisterwebview.WebViewFragment;
+import saiboten.no.synclistener.musicservicecommunicator.MusicServiceCommunicator;
+import saiboten.no.synclistener.webview.WebViewFragment;
 
 public class MainActivity extends FragmentActivity {
 
-    ViewFragmentsPagerAdapter mViewFragmentsPagerAdapter;
+    //Your activity will respond to this action String
+    public static final String SYNCHRONIZE = "no.saiboten.synclistener.SYNCHRONIZE";
 
-    ViewPager mViewPager;
+    public static final String SEEK = "no.saiboten.synclistener.SEEK";
+
+    public static final String PAUSE = "no.saiboten.synclistener.PAUSE";
+
+    public static final String RESUME = "no.saiboten.synclistener.RESUME";
+
+    private final static String TAG = "MainActivity";
 
     @Inject
     public MusicServiceCommunicator musicServiceCommunicator;
 
     @Inject
-    MusicPlayerFragment musicPlayerFragment;
+    public MusicPlayerFragment musicPlayerFragment;
+
+    @Bind(R.id.MainActivity_ViewPager_pager)
+    public ViewPager viewPager;
+
+    ViewFragmentsPagerAdapter viewFragmentsPagerAdapter;
 
     @Inject
     WebViewFragment webViewFragment;
-
-    private final static String TAG = "MainActivity";
-
-    //Your activity will respond to this action String
-    public static final String SYNCHRONIZE = "no.saiboten.synclistener.SYNCHRONIZE";
-    public static final String SEEK = "no.saiboten.synclistener.SEEK";
-    public static final String PAUSE = "no.saiboten.synclistener.PAUSE";
-    public static final String RESUME = "no.saiboten.synclistener.RESUME";
 
     private BroadcastReceiver bReceiver = new BroadcastReceiver() {
 
@@ -55,16 +59,13 @@ public class MainActivity extends FragmentActivity {
             if(intent.getAction().equals(SYNCHRONIZE)) {
                 Log.d(TAG, "Synchronizing with server playlist");
                 musicPlayerFragment().synchronizeViewWithPlaylist();
-            }
-            else if(intent.getAction().equals(SEEK)) {
+            } else if(intent.getAction().equals(SEEK)) {
                 Log.d(TAG, "Seeking to the right place");
                 musicPlayerFragment().seek();
-            }
-            else if(intent.getAction().equals(PAUSE)) {
+            } else if(intent.getAction().equals(PAUSE)) {
                 Log.d(TAG, "Pausing");
                 musicPlayerFragment().pause();
-            }
-            else if(intent.getAction().equals(RESUME)) {
+            } else if(intent.getAction().equals(RESUME)) {
                 Log.d(TAG, "Resuming");
                 musicPlayerFragment().resume();
             }
@@ -74,9 +75,19 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
         ((BaseApplication) getApplication()).inject(this);
+        this.musicServiceCommunicator.setActivity(this);
 
+        setupBroadcasterRegistration();
 
+        setupFragmentView();
+    }
+
+    private void setupBroadcasterRegistration() {
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(SYNCHRONIZE);
@@ -84,29 +95,22 @@ public class MainActivity extends FragmentActivity {
         intentFilter.addAction(PAUSE);
         intentFilter.addAction(RESUME);
         bManager.registerReceiver(bReceiver, intentFilter);
-        this.musicServiceCommunicator.setActivity(this);
+    }
 
-        Log.d(TAG, "onCreate");
-        setContentView(R.layout.activity_main);
+    private void setupFragmentView() {
+        viewFragmentsPagerAdapter = new ViewFragmentsPagerAdapter(getSupportFragmentManager(), webViewFragment, musicPlayerFragment);
+        viewPager.setAdapter(viewFragmentsPagerAdapter);
 
-        // getFragmentManager().findFragmentByTag(""); //WTF?
-
-        mViewFragmentsPagerAdapter =
-                new ViewFragmentsPagerAdapter(
-                        getSupportFragmentManager(), webViewFragment, musicPlayerFragment);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-
-        mViewPager.setAdapter(mViewFragmentsPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {
                 WebViewFragment webViewFragment = getWebViewFragment(); // 1 == webview
                 MusicPlayerFragment musicPlayerFragment = musicPlayerFragment(); // 0 == player
-                EditText playlistName = (EditText) musicPlayerFragment.rootView.findViewById(R.id.playlist);
-                String playlist = playlistName.getText().toString();
-                Log.d("MainActivity", playlist);
-                webViewFragment.changeUrl(playlist);
+
+                String playlistString = musicPlayerFragment.playlist.getText().toString();
+                Log.d("MainActivity", playlistString);
+                webViewFragment.changeUrl(playlistString);
             }
 
             @Override
@@ -126,22 +130,20 @@ public class MainActivity extends FragmentActivity {
     }
 
     public MusicPlayerFragment musicPlayerFragment() {
-        return (MusicPlayerFragment) mViewFragmentsPagerAdapter.getRegisteredFragment(0);
+        return (MusicPlayerFragment) viewFragmentsPagerAdapter.getRegisteredFragment(0);
     }
 
     public WebViewFragment getWebViewFragment() {
-        return (WebViewFragment) mViewFragmentsPagerAdapter.getRegisteredFragment(1);
+        return (WebViewFragment) viewFragmentsPagerAdapter.getRegisteredFragment(1);
     }
-
-
 
     @Override
     protected void onDestroy() {
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         bManager.unregisterReceiver(bReceiver);
+        ButterKnife.unbind(this);
         super.onDestroy();
+
         Log.d("MainActivity", "Main activity destroyed");
     }
-
-
 }
