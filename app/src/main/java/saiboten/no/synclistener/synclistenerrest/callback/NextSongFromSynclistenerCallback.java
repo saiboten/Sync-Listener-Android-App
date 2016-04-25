@@ -8,5 +8,7 @@ import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
 public interface NextSongFromSynclistenerCallback {
     public void getNextSongSuccess(SyncListenerSongInfo syncListenerSongInfo);
 
+    public void getNextSongAndPlaySuccess(SyncListenerSongInfo syncListenerSongInfo);
+
     public void getNextSongFailed();
 }

@@ -28,17 +28,20 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="Velg en spilleliste"
-        android:textColor="@color/complementary2"
+        style="@style/DefaultSyncListenerStyle"
+        android:textColor="@color/complementary1"
         android:textSize="20sp" />
 
     <EditText
         android:id="@+id/MusicPlayerFragment_EditText_playlist"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/complementary1"
+        android:textColor="@color/primary5"
         android:hint="@string/playlistname"
         android:inputType="textEmailAddress"
         android:padding="10dp"
+        style="@style/DefaultSyncListenerStyle"
         android:text="" />
 
     <!--<Spinner
@@ -59,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/complementary2"
+            android:textColor="@color/complementary1"
             android:text="@string/defaultTime"
             android:textAlignment="center"
             android:visibility="invisible"
@@ -90,7 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingLeft="10dp"
-            android:textColor="@color/complementary2"
+            android:textColor="@color/complementary1"
             android:visibility="invisible"
             android:text="@string/defaultTime"
             android:textAlignment="center"

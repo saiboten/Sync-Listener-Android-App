@@ -9,6 +9,7 @@ import saiboten.no.synclistener.intro.SetupActivity;
 import saiboten.no.synclistener.mainscreen.MainActivity;
 import saiboten.no.synclistener.mainscreen.MusicPlayerFragment;
 import saiboten.no.synclistener.musicservicecommunicator.MusicServiceCommunicator;
+import saiboten.no.synclistener.preferences.AccessTokenHelper;
 import saiboten.no.synclistener.spotifytokenservice.SpotifyTokenSaveService;
 import saiboten.no.synclistener.webview.WebViewFragment;
 
@@ -45,6 +46,12 @@ public class DaggerModule {
     @Singleton
     public WebViewFragment getWebViewFragment() {
         return new WebViewFragment();
+    }
+
+    @Provides
+    @Singleton
+    public AccessTokenHelper accessTokenHelper() {
+        return new AccessTokenHelper();
     }
 
 }

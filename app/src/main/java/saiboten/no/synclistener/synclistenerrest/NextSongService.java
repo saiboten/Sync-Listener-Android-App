@@ -13,7 +13,15 @@ import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
  */
 public class NextSongService {
 
+    public void getNextSongAndPlay(final NextSongFromSynclistenerCallback nextSongFromSynclistenerCallback, String playlist) {
+        getNextSong(nextSongFromSynclistenerCallback, playlist, true);
+    }
+
     public void getNextSong(final NextSongFromSynclistenerCallback nextSongFromSynclistenerCallback, String playlist) {
+        getNextSong(nextSongFromSynclistenerCallback, playlist, false);
+    }
+
+    public void getNextSong(final NextSongFromSynclistenerCallback nextSongFromSynclistenerCallback, String playlist, final boolean playCallback) {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://178.62.133.37:3000")
@@ -27,7 +35,12 @@ public class NextSongService {
         songInfo.enqueue(new Callback<SyncListenerSongInfo>() {
             @Override
             public void onResponse(Call<SyncListenerSongInfo> call, Response<SyncListenerSongInfo> response) {
-                nextSongFromSynclistenerCallback.getNextSongSuccess(response.body());
+                if(playCallback) {
+                    nextSongFromSynclistenerCallback.getNextSongAndPlaySuccess(response.body());
+                } else {
+                    nextSongFromSynclistenerCallback.getNextSongSuccess(response.body());
+
+                }
             }
 
             @Override

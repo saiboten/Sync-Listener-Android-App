@@ -37,6 +37,15 @@ public class MusicServiceCommunicator {
         return false;
     }
 
+    public void getPlayOrPauseStatus() {
+        Log.d(TAG, "Getting playing status");
+
+        Intent intent = new Intent(mainActivity.getApplicationContext(), MusicService.class);
+        intent.setAction("PLAYPAUSESTATUS");
+
+        mainActivity.startService(intent);
+    }
+
     public void pausePlayer() {
         Log.d(TAG, "Pausing player");
 

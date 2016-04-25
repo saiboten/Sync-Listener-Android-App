@@ -1,6 +1,7 @@
 package saiboten.no.synclistener.mainscreen;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,11 +18,14 @@ import android.widget.TextView;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import saiboten.no.synclistener.R;
+import saiboten.no.synclistener.intro.SetupActivity;
 import saiboten.no.synclistener.spotifysonginfo.SongInfoServiceFromSpotify;
 import saiboten.no.synclistener.spotifysonginfo.callback.SongInfoFromSpotifyCallback;
 import saiboten.no.synclistener.spotifysonginfo.model.SpotifySyncNiceSongInfoModel;
@@ -67,7 +71,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
 
     private Handler handler = new Handler();
 
-    private int secondsPlayedTotal = 0;
+    //private int secondsPlayedTotal = 0;
 
     private String playingSong = null;
 
@@ -79,18 +83,21 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
 
     private boolean handlerInitialized = false;
 
+    UpdateTime updateTime = new UpdateTime();
+
+    Thread updateTimeThread;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
 
         mainActivity = (MainActivity) getActivity();
-
         if(!handlerInitialized) {
             handlerInitialized = true;
-            new android.os.Handler().postDelayed(new UpdateTime(), 1000);
+            updateTimeThread = new Thread(updateTime);
+            updateTimeThread.run();
         }
-
     }
 
     @Override
@@ -109,12 +116,18 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        MainActivity mainActivity = (MainActivity) getActivity();
-        if(!mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
+        playlist.setText(previousPlaylist);
+
+        if(mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
+            Log.d(TAG, "Music service is running, lets just set info?");
+            mainActivity.musicServiceCommunicator.getPlayOrPauseStatus();
+            setInfo();
+        }
+
+        if(!mainActivity.musicServiceCommunicator.isMusicServiceRunning() && !mainActivity.accessTokenHelper.accessTokenHasExpired(mainActivity)) {
             mainActivity.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
         }
 
-        playlist.setText(previousPlaylist);
         return rootView;
     }
 
@@ -139,7 +152,19 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
 
     @OnClick(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
     public void playOrPauseClick() {
-        MainActivity mainActivity = (MainActivity) getActivity();
+        //Ensure that the music service is running
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
+
+        if(mainActivity.accessTokenHelper.accessTokenHasExpired(mainActivity)) {
+            Intent intent = new Intent(this.getActivity(), SetupActivity.class);
+            intent.putExtra("loginFailed", true);
+            startActivity(intent);
+        }
+        else if(!mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
+            Log.d(TAG, "Music service is not running. Have to start it");
+            mainActivity.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
+        }
+
         if(paused) {
             String playlistText = playlist.getText().toString();
 
@@ -155,11 +180,12 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
                 editor.putStringSet(getString(R.string.playlistSet), previousPlaylists);
                 editor.commit();
             }
+            retrieveAndPlaySong();
 
-            synchronizeViewWithPlaylist();
         } else {
             mainActivity.getMusicServiceCommunicator().pausePlayer();
         }
+
     }
 
     public void seek() {
@@ -167,49 +193,54 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
             timeToSeek = false;
             MainActivity mainActivity = (MainActivity) getActivity();
             ((MainActivity) getActivity()).getMusicServiceCommunicator().seekToPosition(seekTime * 1000);
-            secondsPlayedTotal = seekTime;
+            //secondsPlayedTotal = seekTime;
         }
     }
 
     public void setInfo() {
-        MainActivity mainActivity = (MainActivity) this.getActivity();
-        if(mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
-            String playlistText = playlist.getText().toString();
+        Log.d(TAG, "Updating screen info. This should not play or pause or anything, just update the info on screen");
 
-            if(playlistText != null && !playlistText.equals("")) {
-                Log.d(TAG, "Complete url: " + playlistText);
-                new NextSongService().getNextSong(this, playlistText);
-            }
+        String playlistText = playlist.getText().toString();
+
+        if(playlistText != null && !playlistText.equals("")) {
+            Log.d(TAG, "Retrieving song info from playlist: " + playlistText);
+            new NextSongService().getNextSong(this, playlistText);
         }
     }
 
-    public void synchronizeViewWithPlaylist() {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        if(mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
-            resume();
-            songDurationSeconds = 0;
-            setInfo();
+    public void retrieveAndPlaySong() {
+        String playlistText = playlist.getText().toString();
+
+        if(playlistText != null && !playlistText.equals("")) {
+            Log.d(TAG, "Complete url: " + playlistText);
+            new NextSongService().getNextSongAndPlay(this, playlistText);
         }
     }
 
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
+        updateTimeThread.interrupt();
     }
 
     @Override
+    public void getNextSongAndPlaySuccess(SyncListenerSongInfo syncListenerSongInfo) {
+        String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
+        mainActivity.getMusicServiceCommunicator().play(nextSong, playlist.getText().toString());
+        resume();
+        getNextSongSuccess(syncListenerSongInfo);
+    }
+
     public void getNextSongSuccess(SyncListenerSongInfo syncListenerSongInfo) {
         Log.d(TAG, "Result: " + syncListenerSongInfo);
 
         String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
         int songDurationS = syncListenerSongInfo.getSongTop().getSongAgain().getSongDurationMs();
-        MainActivity mainActivity = (MainActivity) getActivity();
-        mainActivity.getMusicServiceCommunicator().play(nextSong, playlist.getText().toString());
         this.playingSong = nextSong;
 
         Log.d(TAG, "Song: " + nextSong);
 
-        secondsPlayedTotal = 0;
+        //secondsPlayedTotal = 0;
 
         this.timeToSeek = true;
         this.seekTime = syncListenerSongInfo.getSongTop().getSongAgain().getSecondsPlayed();
@@ -248,23 +279,37 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         Log.e(TAG, "Could not get song data from spotify :-(");
     }
 
+    public void playStatusCallback(boolean isPlaying) {
+        Log.d(TAG, "Player status callback recieved, are we playing? " + isPlaying);
+        paused = !isPlaying;
+    }
+
     private class UpdateTime implements Runnable {
 
         @Override
         public void run() {
 
-            if(!paused) {
-                secondsPlayedTotal++;
+            if(progressBar != null) {
+                if(!paused) {
+                    //secondsPlayedTotal++;
+                    seekTime++;
 
-                if(songDurationSeconds != 0) {
-                    int progress = (secondsPlayedTotal * 100 / songDurationSeconds);
-                    //Log.d("MusicPlayerFragment", "Updating progress status: " + progress);
-                    progressBar.setProgress(progress);
+                    if(songDurationSeconds != 0) {
+                        int progress = (seekTime * 100 / songDurationSeconds);
+                        //int progress = (secondsPlayedTotal * 100 / songDurationSeconds);
+                        //Log.d("MusicPlayerFragment", "Updating progress status: " + progress);
+                        if(progressBar == null) {
+                            Log.d(TAG, "ProgressBar is null - assuming fragment is dead");
+                        }
+                        else {
+                            progressBar.setProgress(progress);
+                        }
+                    }
+
+                    timePlayed.setText(seekTime / 60 + ":" + String.format("%02d", seekTime % 60));
                 }
-
-                timePlayed.setText(secondsPlayedTotal / 60 + ":" + String.format("%02d", secondsPlayedTotal % 60));
             }
-            new android.os.Handler().postDelayed(new UpdateTime(), 1000);
+            new android.os.Handler().postDelayed(updateTime, 1000);
         }
     }
 

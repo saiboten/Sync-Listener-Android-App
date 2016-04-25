@@ -21,6 +21,7 @@ import butterknife.ButterKnife;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.dagger.BaseApplication;
 import saiboten.no.synclistener.musicservicecommunicator.MusicServiceCommunicator;
+import saiboten.no.synclistener.preferences.AccessTokenHelper;
 import saiboten.no.synclistener.webview.WebViewFragment;
 
 public class MainActivity extends FragmentActivity {
@@ -34,6 +35,8 @@ public class MainActivity extends FragmentActivity {
 
     public static final String RESUME = "no.saiboten.synclistener.RESUME";
 
+    public static final String PLAYINGSTATUS = "no.saiboten.synclistener.PLAYINGSTATUS";
+
     private final static String TAG = "MainActivity";
 
     @Inject
@@ -41,6 +44,9 @@ public class MainActivity extends FragmentActivity {
 
     @Inject
     public MusicPlayerFragment musicPlayerFragment;
+
+    @Inject
+    public AccessTokenHelper accessTokenHelper;
 
     @Bind(R.id.MainActivity_ViewPager_pager)
     public ViewPager viewPager;
@@ -58,7 +64,7 @@ public class MainActivity extends FragmentActivity {
 
             if(intent.getAction().equals(SYNCHRONIZE)) {
                 Log.d(TAG, "Synchronizing with server playlist");
-                musicPlayerFragment().synchronizeViewWithPlaylist();
+                musicPlayerFragment().setInfo();
             } else if(intent.getAction().equals(SEEK)) {
                 Log.d(TAG, "Seeking to the right place");
                 musicPlayerFragment().seek();
@@ -68,6 +74,9 @@ public class MainActivity extends FragmentActivity {
             } else if(intent.getAction().equals(RESUME)) {
                 Log.d(TAG, "Resuming");
                 musicPlayerFragment().resume();
+            } else if(intent.getAction().equals(PLAYINGSTATUS)) {
+                Log.d(TAG, "Play status received");
+                musicPlayerFragment().playStatusCallback(intent.getBooleanExtra("status",false));
             }
         }
     };
@@ -93,6 +102,7 @@ public class MainActivity extends FragmentActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(SYNCHRONIZE);
         intentFilter.addAction(SEEK);
+        intentFilter.addAction(PLAYINGSTATUS);
         intentFilter.addAction(PAUSE);
         intentFilter.addAction(RESUME);
         bManager.registerReceiver(bReceiver, intentFilter);

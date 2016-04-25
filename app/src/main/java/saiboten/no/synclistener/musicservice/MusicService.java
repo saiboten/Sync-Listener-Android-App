@@ -13,9 +13,12 @@ import android.util.Log;
 
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 
 import saiboten.no.synclistener.R;
+import saiboten.no.synclistener.intro.SetupActivity;
 import saiboten.no.synclistener.mainscreen.MainActivity;
 import saiboten.no.synclistener.synclistenerrest.NextSongService;
 import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclistenerCallback;
@@ -75,11 +78,28 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
             resume();
         } else if(intent.getAction().equals("SEEK_POSITION")) {
             seekPosition(intent);
+        } else if(intent.getAction().equals("PLAYPAUSESTATUS")) {
+            playPauseStatus();
         } else {
             setup(intent);
         }
 
         return START_NOT_STICKY;
+    }
+
+    private void playPauseStatus() {
+        Log.d(TAG, "Someone wants play status");
+        final MusicService hm = this;
+        getSpotifyPlayerWrapper().getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                Intent playstatus = new Intent(MainActivity.PLAYINGSTATUS);
+                Log.d(TAG, "Broadcasing player state: " + playerState.playing);
+                playstatus.setAction("no.saiboten.synclistener.PLAYINGSTATUS");
+                playstatus.putExtra("status", playerState.playing);
+                LocalBroadcastManager.getInstance(hm).sendBroadcast(playstatus);
+            }
+        });
     }
 
     private void setup(Intent intent) {
@@ -98,7 +118,7 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         resumeServiceIntent.setAction("RESUME");
 
         Intent openSyncListenerIntent = new Intent(this, MainActivity.class);
-        openSyncListenerIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        openSyncListenerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
         PendingIntent openSyncListener = PendingIntent.getActivity(getApplicationContext(), 12345, openSyncListenerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         PendingIntent stopServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12346, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -135,7 +155,9 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     private void seekPosition(Intent intent) {
         Log.d(TAG, "Seeking to another position");
-        getSpotifyPlayerWrapper().seekToPosition(intent.getIntExtra("position", 0));
+        if(getSpotifyPlayerWrapper() != null && intent != null) {
+            getSpotifyPlayerWrapper().seekToPosition(intent.getIntExtra("position", 0));
+        }
     }
 
     private void resume() {
@@ -173,13 +195,18 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
     }
 
     public void playNewSong() {
-        nextSongService.getNextSong(this,currentPlaylist);
+        nextSongService.getNextSong(this, currentPlaylist);
     }
 
     @Override
     public void getNextSongSuccess(SyncListenerSongInfo syncListenerSongInfo) {
         String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
         getSpotifyPlayerWrapper().play(nextSong);
+    }
+
+    @Override
+    public void getNextSongAndPlaySuccess(SyncListenerSongInfo syncListenerSongInfo) {
+        // Not in use here
     }
 
     @Override
