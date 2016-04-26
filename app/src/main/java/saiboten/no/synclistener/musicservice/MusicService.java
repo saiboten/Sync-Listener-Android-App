@@ -18,8 +18,7 @@ import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 
 import saiboten.no.synclistener.R;
-import saiboten.no.synclistener.intro.SetupActivity;
-import saiboten.no.synclistener.mainscreen.MainActivity;
+import saiboten.no.synclistener.activity.MainActivity;
 import saiboten.no.synclistener.synclistenerrest.NextSongService;
 import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclistenerCallback;
 import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;

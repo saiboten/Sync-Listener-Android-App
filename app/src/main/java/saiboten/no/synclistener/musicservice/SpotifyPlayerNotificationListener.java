@@ -9,8 +9,8 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 
-import saiboten.no.synclistener.intro.SetupActivity;
-import saiboten.no.synclistener.mainscreen.MainActivity;
+import saiboten.no.synclistener.setup.SetupActivity;
+import saiboten.no.synclistener.activity.MainActivity;
 
 /**
  * Created by Tobias on 15.03.2015.

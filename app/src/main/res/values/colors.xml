@@ -10,17 +10,17 @@
     <color name="navigationBarColor">#000000</color>
     <color name="colorAccent">#c8e8ff</color>
 
-    <color name="primary1">#555F6E</color>
-    <color name="primary2">#414C5C</color>
-    <color name="primary3">#2C3643</color>
-    <color name="primary4">#1F2D40</color>
-    <color name="primary5">#14243A</color>
+    <color name="primary1">#B6BCBD</color>
+    <color name="primary2">#64888E</color>
+    <color name="primary3">#2D6873</color>
+    <color name="primary4">#094D5A</color>
+    <color name="primary5">#002E37</color>
 
-    <color name="complementary1">#d9cbb3</color>
-    <color name="complementary2">#DB9726</color>
-    <color name="complementary3">#AC6B00</color>
-    <color name="complementary4">#7C4D00</color>
-    <color name="complementary5">#362200</color>
+    <color name="complementary1">#B6BCBD</color>
+    <color name="complementary2">#64888E</color>
+    <color name="complementary3">#2D6873</color>
+    <color name="complementary4">#094D5A</color>
+    <color name="complementary5">#002E37</color>
 
 
 </resources>

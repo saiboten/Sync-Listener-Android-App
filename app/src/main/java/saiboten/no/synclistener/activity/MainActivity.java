@@ -1,7 +1,7 @@
 // TutorialApp
 // Created by Spotify on 25/02/14.
 // Copyright (c) 2014 Spotify. All rights reserved.
-package saiboten.no.synclistener.mainscreen;
+package saiboten.no.synclistener.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.widget.EditText;
 
 import javax.inject.Inject;
 
@@ -20,6 +19,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.dagger.BaseApplication;
+import saiboten.no.synclistener.mainscreen.MusicPlayerFragment;
+import saiboten.no.synclistener.mainscreen.ViewFragmentsPagerAdapter;
 import saiboten.no.synclistener.musicservicecommunicator.MusicServiceCommunicator;
 import saiboten.no.synclistener.preferences.AccessTokenHelper;
 import saiboten.no.synclistener.webview.WebViewFragment;
@@ -111,6 +112,10 @@ public class MainActivity extends FragmentActivity {
     private void setupFragmentView() {
         viewFragmentsPagerAdapter = new ViewFragmentsPagerAdapter(getSupportFragmentManager(), webViewFragment, musicPlayerFragment);
         viewPager.setAdapter(viewFragmentsPagerAdapter);
+
+        //Bind the title indicator to the adapter
+       // TitlePageIndicator titleIndicator = (TitlePageIndicator)findViewById(R.id.titles);
+       // titleIndicator.setViewPager(viewPager);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 

@@ -1,11 +1,10 @@
-package saiboten.no.synclistener.intro;
+package saiboten.no.synclistener.setup;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -14,7 +13,6 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,7 +24,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.activity.BaseActivity;
-import saiboten.no.synclistener.mainscreen.MainActivity;
+import saiboten.no.synclistener.activity.MainActivity;
 import saiboten.no.synclistener.preferences.AccessTokenHelper;
 import saiboten.no.synclistener.spotifytokenservice.SpotifyTokenSaveService;
 
@@ -78,8 +76,11 @@ public class SetupActivity extends BaseActivity {
 
         Log.d(TAG, "Login failed? " + loginFailed);
 
-        if(loginFailed || accessTokenHelper.accessTokenHasExpired(this)) {
-            Log.d(TAG, "Login has failed. We have to get a new access token from spotify.");
+        if(loginFailed) {
+            Log.d(TAG, "Login failed. User is coming from the main activity I believe?");
+            setupButtonClick();
+        } else if(accessTokenHelper.accessTokenHasExpired(this)) {
+            Log.d(TAG, "Access token has expired. We have to get a new access token from spotify. Letting the user do this himself.");
         } else if(StringUtils.isNotEmpty(accessToken)) {
             Log.d(TAG, "User already has access token. Lets just start main activity then?");
             Intent intent = new Intent(this, MainActivity.class);
@@ -94,10 +95,27 @@ public class SetupActivity extends BaseActivity {
     }
 
     @OnClick(R.id.setup_activity_setup_button)
-    public void setupButtonClick(View view) {
+    public void setupButtonClick() {
         mDialog.show();
         setupSpotifyAuthentication();
     }
+
+    /*@OnTouch(R.id.setup_activity_setup_button)
+    public boolean touchButton(View v, MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                v.getBackground().setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary1), PorterDuff.Mode.SRC_ATOP);
+                v.invalidate();
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                v.getBackground().clearColorFilter();
+                v.invalidate();
+                break;
+            }
+        }
+        return false;
+    }*/
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);

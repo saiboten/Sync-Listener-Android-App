@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/primary3"
+    android:background="@color/primary5"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -10,12 +10,13 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:weightSum="1"
-    tools:context=".mainscreen.MainActivity">
+    tools:context=".activity.MainActivity">
 
     <ImageView
         android:id="@+id/MusicPlayerFragment_ImageView_imageView"
         android:layout_width="fill_parent"
         android:layout_height="250dp"
+        android:isScrollContainer="false"
         android:layout_weight="0.87"
         android:contentDescription="@string/logo"
         android:scaleType="fitXY"
@@ -36,18 +37,12 @@
         android:id="@+id/MusicPlayerFragment_EditText_playlist"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/complementary1"
+        android:background="@color/complementary2"
         android:textColor="@color/primary5"
         android:hint="@string/playlistname"
-        android:inputType="textEmailAddress"
         android:padding="10dp"
         style="@style/DefaultSyncListenerStyle"
         android:text="" />
-
-    <!--<Spinner
-         android:id="@+id/planets_spinner"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content" />-->
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -80,6 +75,7 @@
                 android:id="@+id/MusicPlayerFragment_ProgressBar_progressBar"
                 style="@android:style/Widget.ProgressBar.Horizontal"
                 android:layout_width="fill_parent"
+                android:progressDrawable="@drawable/progressbarcolor"
                 android:layout_height="10dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginTop="10dp"
