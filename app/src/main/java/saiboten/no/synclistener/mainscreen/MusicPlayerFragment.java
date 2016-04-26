@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -22,6 +23,7 @@ import java.util.Set;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTouch;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.activity.MainActivity;
 import saiboten.no.synclistener.setup.SetupActivity;
@@ -69,8 +71,6 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     MainActivity mainActivity;
 
     private Handler handler = new Handler();
-
-    //private int secondsPlayedTotal = 0;
 
     private String playingSong = null;
 
@@ -149,25 +149,24 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         //TODO save some state here maybe?
     }
 
-    /*@OnTouch(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
+    @OnTouch(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
     public boolean touchButton(View v, MotionEvent event) {
         Log.d(TAG, "Touch!" + event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
-                ImageView imageView = (ImageView) v;
-                imageView.setImageResource(R.drawable.synchronize_active);
+                //TODO add some cool stuff here
                 v.invalidate();
                 break;
             }
             case MotionEvent.ACTION_UP: {
-                ImageView imageView = (ImageView) v;
-                imageView.setImageResource(R.drawable.synchronize);
+                //ImageView imageView = (ImageView) v;
+               // imageView.setImageResource(R.drawable.synchronize);
                 v.invalidate();
                 break;
             }
         }
         return false;
-    }*/
+    }
 
     @OnClick(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
     public void playOrPauseClick() {

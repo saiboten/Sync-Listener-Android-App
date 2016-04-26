@@ -3,8 +3,12 @@ package saiboten.no.synclistener.setup;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -22,6 +26,7 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTouch;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.activity.BaseActivity;
 import saiboten.no.synclistener.activity.MainActivity;
@@ -100,7 +105,7 @@ public class SetupActivity extends BaseActivity {
         setupSpotifyAuthentication();
     }
 
-    /*@OnTouch(R.id.setup_activity_setup_button)
+    @OnTouch(R.id.setup_activity_setup_button)
     public boolean touchButton(View v, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
@@ -115,7 +120,7 @@ public class SetupActivity extends BaseActivity {
             }
         }
         return false;
-    }*/
+    }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
