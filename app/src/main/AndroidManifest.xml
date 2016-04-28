@@ -27,6 +27,8 @@
                 <action android:name="RESUME" />
                 <action android:name="SEEK_POSITION" />
                 <action android:name="PLAYINGSTATUS" />
+                <action android:name="PAUSE_OR_RESUME" />
+                <action android:name="SEEK_ACTIVITY" />
             </intent-filter>
         </service>
 

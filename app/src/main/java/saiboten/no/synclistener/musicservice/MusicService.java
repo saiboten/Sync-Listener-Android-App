@@ -73,12 +73,12 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
             stopService();
         } else if(intent.getAction().equals("PLAY")) {
             play(intent);
-        } else if(intent.getAction().equals("PAUSE")) {
-            pause();
-        } else if(intent.getAction().equals("RESUME")) {
-            resume();
+        } else if(intent.getAction().equals("PAUSE_OR_RESUME")) {
+            pauseOrResume();
         } else if(intent.getAction().equals("SEEK_POSITION")) {
             seekPosition(intent);
+        } else if(intent.getAction().equals("SEEK_ACTIVITY")) {
+            synchronizeThroughtActivity();
         } else if(intent.getAction().equals("PLAYPAUSESTATUS")) {
             playPauseStatus();
         } else {
@@ -86,6 +86,12 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         }
 
         return START_NOT_STICKY;
+    }
+
+    private void synchronizeThroughtActivity() {
+        Intent synchronize = new Intent(MainActivity.SYNCHRONIZE);
+        synchronize.setAction("no.saiboten.synclistener.SYNCHRONIZE");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(synchronize);
     }
 
     private void playPauseStatus() {
@@ -108,23 +114,23 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         receiver = new HeadSetDisconnectedBroadcastReceiver();
         registerReceiver(receiver, receiverFilter);
 
+        Intent synchronizeFromActivityServiceIntent = new Intent(this, MusicService.class);
+        synchronizeFromActivityServiceIntent.setAction("SEEK_ACTIVITY");
+
+        Intent pauseOrResumeServiceIntent = new Intent(this, MusicService.class);
+        pauseOrResumeServiceIntent.setAction("PAUSE_OR_RESUME");
+
         Log.d(TAG, "Access token: " + intent.getStringExtra("accessToken"));
         Intent stopServiceIntent = new Intent(this, MusicService.class);
         stopServiceIntent.setAction("STOP_SERVICE");
-
-        Intent pauseServiceIntent = new Intent(this, MusicService.class);
-        pauseServiceIntent.setAction("PAUSE");
-
-        Intent resumeServiceIntent = new Intent(this, MusicService.class);
-        resumeServiceIntent.setAction("RESUME");
 
         Intent openSyncListenerIntent = new Intent(this, MainActivity.class);
         openSyncListenerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
         PendingIntent openSyncListener = PendingIntent.getActivity(getApplicationContext(), 12345, openSyncListenerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         PendingIntent stopServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12346, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent pauseServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12347, pauseServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent resumeServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12348, resumeServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pauseServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12347, pauseOrResumeServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resumeServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12348, synchronizeFromActivityServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         RemoteViews remoteViews = new RemoteViews(getPackageName(),
                 R.layout.notification);
@@ -133,7 +139,6 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         remoteViews.setOnClickPendingIntent(R.id.notification_stop, stopServicePendingIntent);
         remoteViews.setOnClickPendingIntent(R.id.notification_pause, pauseServicePendingIntent);
         remoteViews.setOnClickPendingIntent(R.id.notification_play, resumeServicePendingIntent);
-
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -166,23 +171,26 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         }
     }
 
-    private void resume() {
-        Intent resume = new Intent(MainActivity.RESUME);
-        resume.setAction("no.saiboten.synclistener.RESUME");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(resume);
-
-        Log.d(TAG, "Resuming song");
-        getSpotifyPlayerWrapper().resume();
-    }
-
-    private void pause() {
+    private void pauseOrResume() {
         Log.d(TAG, "Pausing song");
+        final MusicService musicService = this;
 
-        Intent pause = new Intent(MainActivity.PAUSE);
-        pause.setAction("no.saiboten.synclistener.PAUSE");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(pause);
-
-        getSpotifyPlayerWrapper().pause();
+        getSpotifyPlayerWrapper().getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                if(playerState.playing) {
+                    spotifyPlayerWrapper.pause();
+                    Intent pause = new Intent(MainActivity.PAUSE);
+                    pause.setAction("no.saiboten.synclistener.PAUSE");
+                    LocalBroadcastManager.getInstance(musicService).sendBroadcast(pause);
+                } else {
+                    spotifyPlayerWrapper.resume();
+                    Intent pause = new Intent(MainActivity.PAUSE);
+                    pause.setAction("no.saiboten.synclistener.RESUME");
+                    LocalBroadcastManager.getInstance(musicService).sendBroadcast(pause);
+                }
+            }
+        });
     }
 
     private void play(Intent intent) {
@@ -190,7 +198,6 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         currentPlaylist = intent.getStringExtra("playlist");
 
         Log.d(TAG, "Playing song: " + songToPlay + ", from playlist: " + currentPlaylist);
-
         getSpotifyPlayerWrapper().play(intent.getStringExtra("song"));
     }
 
@@ -208,7 +215,7 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
             public void run() {
                 nextSongService.getNextSong(ms, currentPlaylist);
             }
-        }, 2000);
+        }, 5000);
 
     }
 

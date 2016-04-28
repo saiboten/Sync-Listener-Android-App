@@ -80,17 +80,16 @@
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/Notification_Top_Right">
 
-            <RelativeLayout
-                android:id="@+id/notification_play"
-                android:layout_width="64dp"
-                android:layout_height="64dp">
+
                 <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:id="@+id/notification_play"
+                    android:background="@drawable/notification_button_state"
+                    android:layout_width="64dp"
+                    android:layout_alignParentLeft="true"
+                    android:clickable="true"
+                    android:layout_height="64dp"
                     android:layout_centerHorizontal="true"
-                    android:background="@color/transparent"
                     android:src="@drawable/playoptional_small"/>
-            </RelativeLayout>
 <!--
             <View
                 android:layout_width="1dip"
@@ -98,18 +97,16 @@
                 android:layout_toRightOf="@+id/notification_play"
                 android:background="@color/white" />-->
 
-            <RelativeLayout
+
+
+            <ImageButton
                 android:id="@+id/notification_pause"
                 android:layout_toRightOf="@+id/notification_play"
+                android:layout_height="64dp"
                 android:layout_width="64dp"
-                android:layout_height="64dp">
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="15dp"
-                android:background="@color/transparent"
+                android:background="@drawable/notification_button_state"
+                android:clickable="true"
                 android:src="@drawable/pause_small"/>
-            </RelativeLayout>
 
             <!--<View
                 android:layout_width="1dip"
@@ -117,18 +114,14 @@
                 android:layout_toRightOf="@+id/notification_pause"
                 android:background="@color/white" />-->
 
-            <RelativeLayout
-                android:id="@+id/notification_stop"
-                android:layout_toRightOf="@+id/notification_pause"
-                android:layout_width="64dp"
-                android:layout_height="64dp">
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="15dp"
-                android:background="@color/transparent"
+                android:layout_toRightOf="@+id/notification_pause"
+                android:id="@+id/notification_stop"
+                android:background="@drawable/notification_button_state"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:clickable="true"
                 android:src="@drawable/stop_small"/>
-                </RelativeLayout>
 
         </RelativeLayout>
 
