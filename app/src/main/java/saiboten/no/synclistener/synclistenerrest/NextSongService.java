@@ -1,5 +1,7 @@
 package saiboten.no.synclistener.synclistenerrest;
 
+import android.util.Log;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -13,6 +15,8 @@ import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
  */
 public class NextSongService {
 
+    private static final String TAG = "NextSongService";
+
     public void getNextSongAndPlay(final NextSongFromSynclistenerCallback nextSongFromSynclistenerCallback, String playlist) {
         getNextSong(nextSongFromSynclistenerCallback, playlist, true);
     }
@@ -24,7 +28,7 @@ public class NextSongService {
     public void getNextSong(final NextSongFromSynclistenerCallback nextSongFromSynclistenerCallback, String playlist, final boolean playCallback) {
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://178.62.133.37:3000")
+                .baseUrl("http://spotocracy.net")
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
 
@@ -36,6 +40,7 @@ public class NextSongService {
             @Override
             public void onResponse(Call<SyncListenerSongInfo> call, Response<SyncListenerSongInfo> response) {
                 if(playCallback) {
+                    Log.d(TAG, "Got a response - this is the song to play: " + response.body());
                     nextSongFromSynclistenerCallback.getNextSongAndPlaySuccess(response.body());
                 } else {
                     nextSongFromSynclistenerCallback.getNextSongSuccess(response.body());

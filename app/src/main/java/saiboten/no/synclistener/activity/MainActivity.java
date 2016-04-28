@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
@@ -48,6 +49,9 @@ public class MainActivity extends FragmentActivity {
 
     @Inject
     public AccessTokenHelper accessTokenHelper;
+
+    @Bind(R.id.tablayout)
+    TabLayout tabLayout;
 
     @Bind(R.id.MainActivity_ViewPager_pager)
     public ViewPager viewPager;
@@ -112,6 +116,8 @@ public class MainActivity extends FragmentActivity {
     private void setupFragmentView() {
         viewFragmentsPagerAdapter = new ViewFragmentsPagerAdapter(getSupportFragmentManager(), webViewFragment, musicPlayerFragment);
         viewPager.setAdapter(viewFragmentsPagerAdapter);
+
+        tabLayout.setupWithViewPager(viewPager);
 
         //Bind the title indicator to the adapter
        // TitlePageIndicator titleIndicator = (TitlePageIndicator)findViewById(R.id.titles);

@@ -2,6 +2,9 @@
 <resources>
     <color name="turkis">#ffeeeeee</color>
     <color name="white">#fffbfff8</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+
 
     <color name="colorPrimary">#125688</color>
     <color name="colorPrimaryDark">#125688</color>

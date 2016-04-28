@@ -14,7 +14,7 @@ public class ViewFragmentsPagerAdapter extends SmartFragmentStatePagerAdapter {
 
     public MusicPlayerFragment musicPlayerFragment;
 
-    private String tabTitles[] = new String[]{"Tab1", "Tab2"};
+    private String tabTitles[] = new String[]{"Avspiller", "Spilleliste"};
 
     public ViewFragmentsPagerAdapter(FragmentManager fm, WebViewFragment webViewFragment, MusicPlayerFragment musicPlayerFragment) {
         super(fm);

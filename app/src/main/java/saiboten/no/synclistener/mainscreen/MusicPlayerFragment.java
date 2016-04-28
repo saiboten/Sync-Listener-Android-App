@@ -168,8 +168,8 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         return false;
     }
 
-    @OnClick(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
-    public void playOrPauseClick() {
+    @OnClick(R.id.MusicPlayerFragment_FloatingActionButton)
+    public void fabOnClick() {
         //Ensure that the music service is running
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
@@ -178,32 +178,39 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
             intent.putExtra("loginFailed", true);
             startActivity(intent);
         }
-        else if(!mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
-            Log.d(TAG, "Music service is not running. Have to start it");
-            mainActivity.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
-        }
-
-        if(paused) {
-            String playlistText = playlist.getText().toString();
-
-            if(playlistText != null && !playlistText.equals("")) {
-                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                Set<String> previousPlaylists = sharedPref.getStringSet(getString(R.string.playlistSet), new HashSet<String>());
-
-                SharedPreferences.Editor editor = sharedPref.edit();
-                Log.d(TAG, "Playlist being saved: " + playlistText);
-                editor.putString(getString(R.string.playlist), playlistText);
-
-                previousPlaylists.add(playlistText);
-                editor.putStringSet(getString(R.string.playlistSet), previousPlaylists);
-                editor.commit();
+        else {
+            if(!mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
+                Log.d(TAG, "Music service is not running. Have to start it");
+                mainActivity.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
             }
-            retrieveAndPlaySong();
+            else {
+                String playlistText = playlist.getText().toString();
 
+                if(playlistText != null && !playlistText.equals("")) {
+                    SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                    Set<String> previousPlaylists = sharedPref.getStringSet(getString(R.string.playlistSet), new HashSet<String>());
+
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    Log.d(TAG, "Playlist being saved: " + playlistText);
+                    editor.putString(getString(R.string.playlist), playlistText);
+
+                    previousPlaylists.add(playlistText);
+                    editor.putStringSet(getString(R.string.playlistSet), previousPlaylists);
+                    editor.commit();
+                }
+                retrieveAndPlaySong();
+                pauseOrPlayButton.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    @OnClick(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
+    public void playOrPauseClick() {
+        if(paused) {
+            mainActivity.getMusicServiceCommunicator().resumePlayer();
         } else {
             mainActivity.getMusicServiceCommunicator().pausePlayer();
         }
-
     }
 
     public void seek() {

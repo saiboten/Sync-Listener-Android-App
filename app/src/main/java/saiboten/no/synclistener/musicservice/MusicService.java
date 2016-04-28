@@ -7,9 +7,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
@@ -124,17 +126,22 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         PendingIntent pauseServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12347, pauseServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent resumeServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12348, resumeServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        RemoteViews remoteViews = new RemoteViews(getPackageName(),
+                R.layout.notification);
+
+        remoteViews.setOnClickPendingIntent(R.id.notification_logo, openSyncListener);
+        remoteViews.setOnClickPendingIntent(R.id.notification_stop, stopServicePendingIntent);
+        remoteViews.setOnClickPendingIntent(R.id.notification_pause, pauseServicePendingIntent);
+        remoteViews.setOnClickPendingIntent(R.id.notification_play, resumeServicePendingIntent);
+
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.spotocracylogo)
-                        .setContentTitle("Sync Listener")
-                        .setContentText("Swipe ned for avspillingsvalg")
-                        .setContentIntent(openSyncListener)
-                        .addAction(R.drawable.stop, "", stopServicePendingIntent)
-                        .addAction(R.drawable.pause, "", pauseServicePendingIntent)
-                        .addAction(R.drawable.play, "", resumeServicePendingIntent);
+                        .setSmallIcon(R.drawable.spotocracylogo);
 
         Notification notification = mBuilder.build();
+        notification.bigContentView = remoteViews;
+
         startForeground(SOME_ID, notification);
 
         Log.d(TAG, "MusicService created successfully. Notifications ready");
@@ -194,12 +201,21 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
     }
 
     public void playNewSong() {
-        nextSongService.getNextSong(this, currentPlaylist);
+        final MusicService ms = this;
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                nextSongService.getNextSong(ms, currentPlaylist);
+            }
+        }, 2000);
+
     }
 
     @Override
     public void getNextSongSuccess(SyncListenerSongInfo syncListenerSongInfo) {
         String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
+        Log.d(TAG, "Song to play (id/uri): " + nextSong);
         getSpotifyPlayerWrapper().play(nextSong);
     }
 

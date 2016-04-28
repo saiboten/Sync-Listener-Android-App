@@ -28,7 +28,7 @@
         android:layout_marginTop="30dp"
         android:layout_centerHorizontal="false"
         android:textColor="@color/white"
-        android:text="For å kunne bruke SyncListener kreves det at du har Spotify™ Premium. For å knytte sammen din spotify-konto med SyncListener trykker du på oppsett-knappen under."
+        android:text="For å bruke SyncListener må du ha Spotify™ med Spotify Premium-abonnement. Klikk Start under for å starte prosessen! Du vil måtte logge deg inn på din Spotify-konto og gi tilgang til Synclistener."
         android:textSize="20dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:fontFamily="@string/spotocracy_font_family" />
