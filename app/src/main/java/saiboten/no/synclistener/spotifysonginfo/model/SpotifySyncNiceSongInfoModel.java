@@ -10,6 +10,16 @@ public class SpotifySyncNiceSongInfoModel {
 
     private String urlToImage;
 
+    private String urlToThumbNailImage;
+
+    public String getUrlToThumbNailImage() {
+        return urlToThumbNailImage;
+    }
+
+    public void setUrlToThumbNailImage(String urlToThumbNailImage) {
+        this.urlToThumbNailImage = urlToThumbNailImage;
+    }
+
     public String getArtist() {
         return artist;
     }
@@ -40,6 +50,7 @@ public class SpotifySyncNiceSongInfoModel {
                 "artist='" + artist + '\'' +
                 ", song='" + song + '\'' +
                 ", urlToImage='" + urlToImage + '\'' +
+                ", urlToThumbNailImage='" + urlToThumbNailImage + '\'' +
                 '}';
     }
 }

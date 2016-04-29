@@ -8,12 +8,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerState;
@@ -29,7 +34,6 @@ import saiboten.no.synclistener.synclistenerrest.NextSongService;
 import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclistenerCallback;
 import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongAgain;
 import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
-import saiboten.no.synclistener.tasks.DownloadImageTask;
 
 /**
  * Created by Tobias on 27.03.2015.
@@ -62,9 +66,12 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     Notification notification;
 
+    private ImageLoader imageLoader;
+
     public MusicService() {
         super("no.saiboten.MusicService");
         nextSongService = new NextSongService();
+        imageLoader = ImageLoader.getInstance();
     }
 
     public SpotifyPlayerWrapper getSpotifyPlayerWrapper() {
@@ -268,9 +275,9 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         bigRemoteView.setTextViewText(R.id.MusicService_TextView_artist, songAgain.getArtist());
         bigRemoteView.setTextViewText(R.id.MusicService_TextView_album, songAgain.getAlbum());
 
-        String songName = songAgain.getName().length() > 12 ? songAgain.getName().substring(0,12) + ".." : songAgain.getName();
-        String artistName = songAgain.getArtist().length() > 12 ? songAgain.getArtist().substring(0,12) + ".." : songAgain.getArtist();
-        String albumName = songAgain.getAlbum().length() > 12 ? songAgain.getAlbum().substring(0,12) + ".." : songAgain.getAlbum();
+        String songName = songAgain.getName().length() > 12 ? songAgain.getName().substring(0, 12) + ".." : songAgain.getName();
+        String artistName = songAgain.getArtist().length() > 12 ? songAgain.getArtist().substring(0, 12) + ".." : songAgain.getArtist();
+        String albumName = songAgain.getAlbum().length() > 12 ? songAgain.getAlbum().substring(0, 12) + ".." : songAgain.getAlbum();
 
         smallRemoteView.setTextViewText(R.id.MusicService_TextView_song, songName);
         smallRemoteView.setTextViewText(R.id.MusicService_TextView_artist, artistName);
@@ -299,7 +306,17 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     @Override
     public void songFromSpotifySuccessCallback(SpotifySyncNiceSongInfoModel spotifySongInfoModel) {
-        // TODO update image here
+        Log.d(TAG, "Setting logo on notifications");
+        imageLoader.init(ImageLoaderConfiguration.createDefault(this));
+
+        imageLoader.loadImage(spotifySongInfoModel.getUrlToThumbNailImage(), new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                smallRemoteView.setImageViewBitmap(R.id.notification_logo, loadedImage);
+                bigRemoteView.setImageViewBitmap(R.id.notification_logo, loadedImage);
+                notificationManager.notify(NOTIFICATION_ID, notification);
+            }
+        });
     }
 
     @Override

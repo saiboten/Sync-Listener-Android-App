@@ -12,6 +12,10 @@ public class SpotifyModelToUsableModelConverter {
         newModel.setArtist(spotifySongInfoModel.getArtists().get(0).getName());
         newModel.setSong(spotifySongInfoModel.getName());
         newModel.setUrlToImage(spotifySongInfoModel.getAlbum().getImages().get(0).getUrl());
+        if(spotifySongInfoModel.getAlbum().getImages().size() >= 1) {
+            newModel.setUrlToThumbNailImage(spotifySongInfoModel.getAlbum().getImages().get(1).getUrl());
+        }
+
         return newModel;
     }
 }
