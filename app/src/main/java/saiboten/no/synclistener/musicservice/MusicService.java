@@ -2,6 +2,7 @@ package saiboten.no.synclistener.musicservice;
 
 import android.app.IntentService;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,7 +33,7 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     private static final String CLIENT_ID = "b60120e0052b4973b2a89fab00925019";
 
-    private static final int SOME_ID = 123456;
+    private static final int NOTIFICATION_ID = 13337;
 
     private final static String TAG = "MusicService";
 
@@ -49,6 +50,12 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
     RemoteViews bigRemoteView;
 
     RemoteViews smallRemoteView;
+
+    NotificationCompat.Builder builder;
+
+    NotificationManager notificationManager;
+
+    Notification notification;
 
     public MusicService() {
         super("no.saiboten.MusicService");
@@ -139,6 +146,9 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
     }
 
     private void setupNotificationBar() {
+
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
         Intent synchronizeFromActivityServiceIntent = new Intent(this, MusicService.class);
         synchronizeFromActivityServiceIntent.setAction("SEEK_ACTIVITY");
 
@@ -172,14 +182,14 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         smallRemoteView.setOnClickPendingIntent(R.id.notification_pause_or_resume, pauseOrResumeServicePendingIntent);
         smallRemoteView.setOnClickPendingIntent(R.id.notification_synchronize, synchronizeServicePendingIntent);
 
-        NotificationCompat.Builder mBuilder =
+        builder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.spotocracylogo).setContent(smallRemoteView);
 
-        Notification notification = mBuilder.build();
+        notification = builder.build();
         notification.bigContentView = bigRemoteView;
 
-        startForeground(SOME_ID, notification);
+        startForeground(NOTIFICATION_ID, notification);
     }
 
     private void seekPosition(Intent intent) {
@@ -190,27 +200,30 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
     }
 
     private void pauseOrResume() {
-        Log.d(TAG, "Pausing song");
         final MusicService musicService = this;
 
         getSpotifyPlayerWrapper().getPlayerState(new PlayerStateCallback() {
             @Override
             public void onPlayerState(PlayerState playerState) {
                 if(playerState.playing) {
+                    Log.d(TAG, "Pausing song");
                     spotifyPlayerWrapper.pause();
                     Intent pause = new Intent(MainActivity.PAUSE);
                     pause.setAction("no.saiboten.synclistener.PAUSE");
                     LocalBroadcastManager.getInstance(musicService).sendBroadcast(pause);
-                    smallRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.pause_small);
-                    bigRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.pause_small);
-
-                } else {
-                    spotifyPlayerWrapper.resume();
-                    Intent pause = new Intent(MainActivity.PAUSE);
-                    pause.setAction("no.saiboten.synclistener.RESUME");
-                    LocalBroadcastManager.getInstance(musicService).sendBroadcast(pause);
                     smallRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.playoptional_small);
                     bigRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.playoptional_small);
+                    notificationManager.notify(NOTIFICATION_ID, notification);
+
+                } else {
+                    Log.d(TAG, "Resuming song");
+                    spotifyPlayerWrapper.resume();
+                    Intent resume = new Intent(MainActivity.RESUME);
+                    resume.setAction("no.saiboten.synclistener.RESUME");
+                    LocalBroadcastManager.getInstance(musicService).sendBroadcast(resume);
+                    smallRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.pause_small);
+                    bigRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.pause_small);
+                    notificationManager.notify(NOTIFICATION_ID, notification);
                 }
             }
         });
