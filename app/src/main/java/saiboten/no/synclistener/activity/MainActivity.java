@@ -39,6 +39,9 @@ public class MainActivity extends FragmentActivity {
 
     public static final String PLAYINGSTATUS = "no.saiboten.synclistener.PLAYINGSTATUS";
 
+    public static final String SYNCHRONIZE_AND_PLAY = "no.saiboten.synclistener.SYNCHRONIZE_AND_PLAY";
+
+
     private final static String TAG = "MainActivity";
 
     @Inject
@@ -65,11 +68,14 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Received intent in MainActivity. From the service? OMG!" + intent.getAction());
+            Log.d(TAG, "Received intent in MainActivity from the service, action:" + intent.getAction());
 
             if(intent.getAction().equals(SYNCHRONIZE)) {
                 Log.d(TAG, "Synchronizing with server playlist");
                 musicPlayerFragment().setInfo();
+            }else if(intent.getAction().equals(SYNCHRONIZE_AND_PLAY)) {
+                Log.d(TAG, "Synchronizing and playing");
+                musicPlayerFragment().synchronize();
             } else if(intent.getAction().equals(SEEK)) {
                 Log.d(TAG, "Seeking to the right place");
                 musicPlayerFragment().seek();
@@ -108,6 +114,7 @@ public class MainActivity extends FragmentActivity {
         intentFilter.addAction(SYNCHRONIZE);
         intentFilter.addAction(SEEK);
         intentFilter.addAction(PLAYINGSTATUS);
+        intentFilter.addAction(SYNCHRONIZE_AND_PLAY);
         intentFilter.addAction(PAUSE);
         intentFilter.addAction(RESUME);
         bManager.registerReceiver(bReceiver, intentFilter);

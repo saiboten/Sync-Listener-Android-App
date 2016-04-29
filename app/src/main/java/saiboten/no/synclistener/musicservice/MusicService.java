@@ -46,6 +46,10 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     private NextSongService nextSongService;
 
+    RemoteViews bigRemoteView;
+
+    RemoteViews smallRemoteView;
+
     public MusicService() {
         super("no.saiboten.MusicService");
         nextSongService = new NextSongService();
@@ -89,8 +93,9 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
     }
 
     private void synchronizeThroughtActivity() {
-        Intent synchronize = new Intent(MainActivity.SYNCHRONIZE);
-        synchronize.setAction("no.saiboten.synclistener.SYNCHRONIZE");
+        Log.d(TAG, "Launching synchronize and play intent");
+        Intent synchronize = new Intent(MainActivity.SYNCHRONIZE_AND_PLAY);
+        synchronize.setAction("no.saiboten.synclistener.SYNCHRONIZE_AND_PLAY");
         LocalBroadcastManager.getInstance(this).sendBroadcast(synchronize);
     }
 
@@ -110,44 +115,12 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
     }
 
     private void setup(Intent intent) {
+
         IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
         receiver = new HeadSetDisconnectedBroadcastReceiver();
         registerReceiver(receiver, receiverFilter);
 
-        Intent synchronizeFromActivityServiceIntent = new Intent(this, MusicService.class);
-        synchronizeFromActivityServiceIntent.setAction("SEEK_ACTIVITY");
-
-        Intent pauseOrResumeServiceIntent = new Intent(this, MusicService.class);
-        pauseOrResumeServiceIntent.setAction("PAUSE_OR_RESUME");
-
-        Log.d(TAG, "Access token: " + intent.getStringExtra("accessToken"));
-        Intent stopServiceIntent = new Intent(this, MusicService.class);
-        stopServiceIntent.setAction("STOP_SERVICE");
-
-        Intent openSyncListenerIntent = new Intent(this, MainActivity.class);
-        openSyncListenerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-
-        PendingIntent openSyncListener = PendingIntent.getActivity(getApplicationContext(), 12345, openSyncListenerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        PendingIntent stopServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12346, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent pauseServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12347, pauseOrResumeServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent resumeServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12348, synchronizeFromActivityServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        RemoteViews remoteViews = new RemoteViews(getPackageName(),
-                R.layout.notification);
-
-        remoteViews.setOnClickPendingIntent(R.id.notification_logo, openSyncListener);
-        remoteViews.setOnClickPendingIntent(R.id.notification_stop, stopServicePendingIntent);
-        remoteViews.setOnClickPendingIntent(R.id.notification_pause, pauseServicePendingIntent);
-        remoteViews.setOnClickPendingIntent(R.id.notification_play, resumeServicePendingIntent);
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.spotocracylogo);
-
-        Notification notification = mBuilder.build();
-        notification.bigContentView = remoteViews;
-
-        startForeground(SOME_ID, notification);
+        setupNotificationBar();
 
         Log.d(TAG, "MusicService created successfully. Notifications ready");
 
@@ -156,12 +129,57 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         SpotifyPlayerNotificationListener spotifyPlayerNotificationListener = new SpotifyPlayerNotificationListener(this);
 
         Log.d(TAG, "Spotify player wrapper created. Notification listener created");
+        Log.d(TAG, "Access token: " + intent.getStringExtra("accessToken"));
 
         Config playerConfig = new Config(getApplicationContext(), intent.getStringExtra("accessToken"), CLIENT_ID);
 
         Log.d(TAG, "Config created");
         spotifyPlayerWrapper.setPlayer(Spotify.getPlayer(playerConfig, this, spotifyPlayerNotificationListener));
         Log.d(TAG, "Spotify player ready");
+    }
+
+    private void setupNotificationBar() {
+        Intent synchronizeFromActivityServiceIntent = new Intent(this, MusicService.class);
+        synchronizeFromActivityServiceIntent.setAction("SEEK_ACTIVITY");
+
+        Intent pauseOrResumeServiceIntent = new Intent(this, MusicService.class);
+        pauseOrResumeServiceIntent.setAction("PAUSE_OR_RESUME");
+
+        Intent stopServiceIntent = new Intent(this, MusicService.class);
+        stopServiceIntent.setAction("STOP_SERVICE");
+
+        Intent openSyncListenerIntent = new Intent(this, MainActivity.class);
+        openSyncListenerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+        PendingIntent openSyncListener = PendingIntent.getActivity(getApplicationContext(), 12345, openSyncListenerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent stopServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12346, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pauseOrResumeServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12347, pauseOrResumeServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent synchronizeServicePendingIntent = PendingIntent.getService(getApplicationContext(), 12348, synchronizeFromActivityServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        bigRemoteView = new RemoteViews(getPackageName(),
+                R.layout.notification);
+
+        bigRemoteView.setOnClickPendingIntent(R.id.notification_logo, openSyncListener);
+        bigRemoteView.setOnClickPendingIntent(R.id.notification_stop, stopServicePendingIntent);
+        bigRemoteView.setOnClickPendingIntent(R.id.notification_pause_or_resume, pauseOrResumeServicePendingIntent);
+        bigRemoteView.setOnClickPendingIntent(R.id.notification_synchronize, synchronizeServicePendingIntent);
+
+        smallRemoteView = new RemoteViews(getPackageName(),
+                R.layout.notification_small);
+
+        smallRemoteView.setOnClickPendingIntent(R.id.notification_logo, openSyncListener);
+        smallRemoteView.setOnClickPendingIntent(R.id.notification_stop, stopServicePendingIntent);
+        smallRemoteView.setOnClickPendingIntent(R.id.notification_pause_or_resume, pauseOrResumeServicePendingIntent);
+        smallRemoteView.setOnClickPendingIntent(R.id.notification_synchronize, synchronizeServicePendingIntent);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.spotocracylogo).setContent(smallRemoteView);
+
+        Notification notification = mBuilder.build();
+        notification.bigContentView = bigRemoteView;
+
+        startForeground(SOME_ID, notification);
     }
 
     private void seekPosition(Intent intent) {
@@ -183,11 +201,16 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
                     Intent pause = new Intent(MainActivity.PAUSE);
                     pause.setAction("no.saiboten.synclistener.PAUSE");
                     LocalBroadcastManager.getInstance(musicService).sendBroadcast(pause);
+                    smallRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.pause_small);
+                    bigRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.pause_small);
+
                 } else {
                     spotifyPlayerWrapper.resume();
                     Intent pause = new Intent(MainActivity.PAUSE);
                     pause.setAction("no.saiboten.synclistener.RESUME");
                     LocalBroadcastManager.getInstance(musicService).sendBroadcast(pause);
+                    smallRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.playoptional_small);
+                    bigRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.playoptional_small);
                 }
             }
         });

@@ -168,8 +168,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         return false;
     }
 
-    @OnClick(R.id.MusicPlayerFragment_FloatingActionButton)
-    public void fabOnClick() {
+    public void synchronize() {
         //Ensure that the music service is running
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
@@ -204,13 +203,14 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         }
     }
 
+    @OnClick(R.id.MusicPlayerFragment_FloatingActionButton)
+    public void fabOnClick() {
+        synchronize();
+    }
+
     @OnClick(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
     public void playOrPauseClick() {
-        if(paused) {
-            mainActivity.getMusicServiceCommunicator().resumePlayer();
-        } else {
-            mainActivity.getMusicServiceCommunicator().pausePlayer();
-        }
+        mainActivity.getMusicServiceCommunicator().playOrResumePlayer();
     }
 
     public void seek() {

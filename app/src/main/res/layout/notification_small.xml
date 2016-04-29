@@ -5,33 +5,32 @@
               android:gravity="center"
               android:background="@color/black"
               android:orientation="horizontal" >
-        <RelativeLayout
-            android:id="@+id/notification_left_container"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="5dp"
-            android:orientation="vertical">
-            <ImageView
-                android:id="@+id/notification_logo"
-                android:layout_width="130dp"
-                android:layout_height="120dp"
-                android:src="@drawable/spotocracylogo"/>
-        </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/notification_left_container"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="5dp"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/notification_logo"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/spotocracylogo"/>
+    </RelativeLayout>
 
 
 
     <RelativeLayout
         android:id="@+id/notification_right_container"
         android:layout_width="wrap_content"
-        android:orientation="vertical"
-        android:layout_height="130dp">
+        android:layout_height="60dp">
 
 
         <RelativeLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:paddingTop="5dp"
             android:id="@+id/Notification_Top_Right"
@@ -68,34 +67,34 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
         </RelativeLayout>
 
-     <!--   <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dip"
-            android:layout_below="@+id/Notification_Top_Right"
-            android:background="@color/white" />-->
+        <!--   <View
+               android:layout_width="fill_parent"
+               android:layout_height="1dip"
+               android:layout_below="@+id/Notification_Top_Right"
+               android:background="@color/white" />-->
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/Notification_Top_Right">
+            android:layout_toRightOf="@+id/Notification_Top_Right">
 
 
-                <ImageButton
-                    android:id="@+id/notification_synchronize"
-                    android:background="@drawable/notification_button_state"
-                    android:layout_width="64dp"
-                    android:layout_alignParentLeft="true"
-                    android:clickable="true"
-                    android:layout_height="64dp"
-                    android:layout_centerHorizontal="true"
-                    android:src="@drawable/synchronize_small"/>
-<!--
-            <View
-                android:layout_width="1dip"
-                android:layout_height="fill_parent"
-                android:layout_toRightOf="@+id/notification_play"
-                android:background="@color/white" />-->
+            <ImageButton
+                android:id="@+id/notification_synchronize"
+                android:background="@drawable/notification_button_state"
+                android:layout_width="55dp"
+                android:layout_alignParentLeft="true"
+                android:clickable="true"
+                android:layout_height="64dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/synchronize_small"/>
+            <!--
+                        <View
+                            android:layout_width="1dip"
+                            android:layout_height="fill_parent"
+                            android:layout_toRightOf="@+id/notification_play"
+                            android:background="@color/white" />-->
 
 
 
@@ -103,8 +102,7 @@
                 android:id="@+id/notification_pause_or_resume"
                 android:layout_toRightOf="@+id/notification_synchronize"
                 android:layout_height="64dp"
-                android:layout_width="64dp"
-                android:scaleType="center"
+                android:layout_width="55dp"
                 android:background="@drawable/notification_button_state"
                 android:clickable="true"
                 android:src="@drawable/pause_small"/>
@@ -119,7 +117,7 @@
                 android:layout_toRightOf="@+id/notification_pause_or_resume"
                 android:id="@+id/notification_stop"
                 android:background="@drawable/notification_button_state"
-                android:layout_width="64dp"
+                android:layout_width="55dp"
                 android:layout_height="64dp"
                 android:clickable="true"
                 android:src="@drawable/quit_small"/>

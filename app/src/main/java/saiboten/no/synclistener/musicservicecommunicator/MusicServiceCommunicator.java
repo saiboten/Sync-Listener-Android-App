@@ -46,20 +46,11 @@ public class MusicServiceCommunicator {
         mainActivity.startService(intent);
     }
 
-    public void pausePlayer() {
-        Log.d(TAG, "Pausing player");
+    public void playOrResumePlayer() {
+        Log.d(TAG, "Playing or resuming player");
 
         Intent intent = new Intent(mainActivity.getApplicationContext(), MusicService.class);
-        intent.setAction("PAUSE");
-
-        mainActivity.startService(intent);
-    }
-
-    public void resumePlayer() {
-        Log.d(TAG, "Resuming player");
-
-        Intent intent = new Intent(mainActivity.getApplicationContext(), MusicService.class);
-        intent.setAction("RESUME");
+        intent.setAction("PAUSE_OR_RESUME");
 
         mainActivity.startService(intent);
     }
