@@ -43,7 +43,13 @@ public class SpotifyPlayerWrapper {
     }
 
     public void seekToPosition(int i) {
-        this.player.seekToPosition(i);
+        if(i>5000) {
+            Log.d(TAG, "Seeking to position: " + i);
+            this.player.seekToPosition(i);
+        }
+        else {
+            Log.d(TAG, "Seeking less then 5 seconds. Ignoring!");
+        }
     }
 
     public boolean isPlayerInitialized() {

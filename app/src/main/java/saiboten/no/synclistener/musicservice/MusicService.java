@@ -22,14 +22,19 @@ import com.spotify.sdk.android.player.Spotify;
 
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.activity.MainActivity;
+import saiboten.no.synclistener.spotifysonginfo.SongInfoServiceFromSpotify;
+import saiboten.no.synclistener.spotifysonginfo.callback.SongInfoFromSpotifyCallback;
+import saiboten.no.synclistener.spotifysonginfo.model.SpotifySyncNiceSongInfoModel;
 import saiboten.no.synclistener.synclistenerrest.NextSongService;
 import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclistenerCallback;
+import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongAgain;
 import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
+import saiboten.no.synclistener.tasks.DownloadImageTask;
 
 /**
  * Created by Tobias on 27.03.2015.
  */
-public class MusicService extends IntentService implements NextSongFromSynclistenerCallback {
+public class MusicService extends IntentService implements NextSongFromSynclistenerCallback, SongInfoFromSpotifyCallback {
 
     private static final String CLIENT_ID = "b60120e0052b4973b2a89fab00925019";
 
@@ -230,11 +235,8 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
     }
 
     private void play(Intent intent) {
-        String songToPlay = intent.getStringExtra("song");
         currentPlaylist = intent.getStringExtra("playlist");
-
-        Log.d(TAG, "Playing song: " + songToPlay + ", from playlist: " + currentPlaylist);
-        getSpotifyPlayerWrapper().play(intent.getStringExtra("song"));
+        playNewSong();
     }
 
     private void stopService() {
@@ -245,14 +247,7 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     public void playNewSong() {
         final MusicService ms = this;
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                nextSongService.getNextSong(ms, currentPlaylist);
-            }
-        }, 5000);
-
+        nextSongService.getNextSong(ms, currentPlaylist);
     }
 
     @Override
@@ -260,6 +255,28 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
         Log.d(TAG, "Song to play (id/uri): " + nextSong);
         getSpotifyPlayerWrapper().play(nextSong);
+        updateSongInfoOnNotifications(syncListenerSongInfo.getSongTop().getSongAgain());
+
+        String trackId = nextSong.substring(14, nextSong.length());
+        new SongInfoServiceFromSpotify().getSongInfoFromSpotify(this, trackId);
+    }
+
+    private void updateSongInfoOnNotifications(SyncListenerSongAgain songAgain) {
+        Log.d(TAG, "Updating song info on notifications: " + songAgain);
+
+        bigRemoteView.setTextViewText(R.id.MusicService_TextView_song, songAgain.getName());
+        bigRemoteView.setTextViewText(R.id.MusicService_TextView_artist, songAgain.getArtist());
+        bigRemoteView.setTextViewText(R.id.MusicService_TextView_album, songAgain.getAlbum());
+
+        String songName = songAgain.getName().length() > 12 ? songAgain.getName().substring(0,12) + ".." : songAgain.getName();
+        String artistName = songAgain.getArtist().length() > 12 ? songAgain.getArtist().substring(0,12) + ".." : songAgain.getArtist();
+        String albumName = songAgain.getAlbum().length() > 12 ? songAgain.getAlbum().substring(0,12) + ".." : songAgain.getAlbum();
+
+        smallRemoteView.setTextViewText(R.id.MusicService_TextView_song, songName);
+        smallRemoteView.setTextViewText(R.id.MusicService_TextView_artist, artistName);
+        smallRemoteView.setTextViewText(R.id.MusicService_TextView_album, albumName);
+
+        notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     @Override
@@ -278,6 +295,16 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         Spotify.destroyPlayer(this);
         unregisterReceiver(receiver);
         super.onDestroy();
+    }
+
+    @Override
+    public void songFromSpotifySuccessCallback(SpotifySyncNiceSongInfoModel spotifySongInfoModel) {
+        // TODO update image here
+    }
+
+    @Override
+    public void songFromSpotifyFailedCallback() {
+
     }
 
     class HeadSetDisconnectedBroadcastReceiver extends BroadcastReceiver {

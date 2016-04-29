@@ -1,6 +1,7 @@
 package saiboten.no.synclistener.musicservice;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -77,11 +78,15 @@ public class SpotifyPlayerNotificationListener implements
 
     private void playNewSongAndSynchronize() {
         Log.d(TAG, "We are allowed to get a new song. Updating last time played time");
-        musicService.playNewSong();
-
-        Intent synchronize = new Intent(MainActivity.SYNCHRONIZE);
-        synchronize.setAction("no.saiboten.synclistener.SYNCHRONIZE");
-        LocalBroadcastManager.getInstance(musicService).sendBroadcast(synchronize);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                musicService.playNewSong();
+                Intent synchronize = new Intent(MainActivity.SYNCHRONIZE);
+                synchronize.setAction("no.saiboten.synclistener.SYNCHRONIZE");
+                LocalBroadcastManager.getInstance(musicService).sendBroadcast(synchronize);
+            }
+        }, 5000);
     }
 
     @Override

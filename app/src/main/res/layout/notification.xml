@@ -39,32 +39,32 @@
             android:layout_alignParentTop="true">
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/MusicService_TextView_song"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:text="Uni-Twins"
+                android:text=""
                 android:textSize="13dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/MusicService_TextView_artist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:layout_below="@+id/textView"
-                android:text="The Iron Cemetery"
+                android:layout_below="@+id/MusicService_TextView_song"
+                android:text=""
                 android:textSize="13dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
 
             <TextView
-                android:id="@+id/textView3"
+                android:id="@+id/MusicService_TextView_album"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:layout_below="@+id/textView2"
+                android:layout_below="@+id/MusicService_TextView_artist"
                 android:textSize="13dp"
-                android:text="Illusion Suite"
+                android:text=""
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
         </RelativeLayout>
 
