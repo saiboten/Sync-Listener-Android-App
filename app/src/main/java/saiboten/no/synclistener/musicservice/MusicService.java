@@ -241,6 +241,24 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         });
     }
 
+    public void updateNotificationPlayPauseIcons() {
+        getSpotifyPlayerWrapper().getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                if(playerState.playing) {
+                    smallRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.pause_small);
+                    bigRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.pause_small);
+                    notificationManager.notify(NOTIFICATION_ID, notification);
+
+                } else {
+                    smallRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.playoptional_small);
+                    bigRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.playoptional_small);
+                    notificationManager.notify(NOTIFICATION_ID, notification);
+                }
+            }
+        });
+    }
+
     private void play(Intent intent) {
         currentPlaylist = intent.getStringExtra("playlist");
         playNewSong();
@@ -270,6 +288,8 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     private void updateSongInfoOnNotifications(SyncListenerSongAgain songAgain) {
         Log.d(TAG, "Updating song info on notifications: " + songAgain);
+
+        updateNotificationPlayPauseIcons();
 
         bigRemoteView.setTextViewText(R.id.MusicService_TextView_song, songAgain.getName());
         bigRemoteView.setTextViewText(R.id.MusicService_TextView_artist, songAgain.getArtist());

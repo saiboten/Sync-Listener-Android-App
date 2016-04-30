@@ -122,7 +122,7 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:clickable="true"
-                android:src="@drawable/quit_small"/>
+                android:src="@drawable/exit_small"/>
 
         </RelativeLayout>
 

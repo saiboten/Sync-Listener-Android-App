@@ -182,24 +182,24 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
                 Log.d(TAG, "Music service is not running. Have to start it");
                 mainActivity.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
             }
-            else {
-                String playlistText = playlist.getText().toString();
 
-                if(playlistText != null && !playlistText.equals("")) {
-                    SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                    Set<String> previousPlaylists = sharedPref.getStringSet(getString(R.string.playlistSet), new HashSet<String>());
+            String playlistText = playlist.getText().toString();
 
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    Log.d(TAG, "Playlist being saved: " + playlistText);
-                    editor.putString(getString(R.string.playlist), playlistText);
+            if(playlistText != null && !playlistText.equals("")) {
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                Set<String> previousPlaylists = sharedPref.getStringSet(getString(R.string.playlistSet), new HashSet<String>());
 
-                    previousPlaylists.add(playlistText);
-                    editor.putStringSet(getString(R.string.playlistSet), previousPlaylists);
-                    editor.commit();
-                }
-                retrieveAndPlaySong();
-                pauseOrPlayButton.setVisibility(View.VISIBLE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                Log.d(TAG, "Playlist being saved: " + playlistText);
+                editor.putString(getString(R.string.playlist), playlistText);
+
+                previousPlaylists.add(playlistText);
+                editor.putStringSet(getString(R.string.playlistSet), previousPlaylists);
+                editor.commit();
             }
+            retrieveAndPlaySong();
+            pauseOrPlayButton.setVisibility(View.VISIBLE);
+
         }
     }
 
