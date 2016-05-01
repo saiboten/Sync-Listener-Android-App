@@ -63,6 +63,8 @@ public class SetupActivity extends BaseActivity {
 
     ProgressDialog mDialog;
 
+    private boolean autoPlayInMain = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +85,7 @@ public class SetupActivity extends BaseActivity {
 
         if(loginFailed) {
             Log.d(TAG, "Login failed. User is coming from the main activity I believe?");
+            autoPlayInMain = true;
             setupButtonClick();
         } else if(accessTokenHelper.accessTokenHasExpired(this)) {
             Log.d(TAG, "Access token has expired. We have to get a new access token from spotify. Letting the user do this himself.");
@@ -150,6 +153,10 @@ public class SetupActivity extends BaseActivity {
                     editor.commit();
 
                     Intent mainActivityIntent = new Intent(this, MainActivity.class);
+                    if(autoPlayInMain) {
+                        autoPlayInMain = false;
+                        mainActivityIntent.putExtra("autoplay",true);
+                    }
                     startActivity(mainActivityIntent);
                     break;
                 case ERROR:

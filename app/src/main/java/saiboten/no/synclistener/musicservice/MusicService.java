@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -113,9 +112,7 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     private void synchronizeThroughtActivity() {
         Log.d(TAG, "Launching synchronize and play intent");
-        Intent synchronize = new Intent(MainActivity.SYNCHRONIZE_AND_PLAY);
-        synchronize.setAction("no.saiboten.synclistener.SYNCHRONIZE_AND_PLAY");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(synchronize);
+        broadcastIntent(MainActivity.SYNCHRONIZE_AND_PLAY, "no.saiboten.synclistener.SYNCHRONIZE_AND_PLAY");
     }
 
     private void playPauseStatus() {
@@ -185,6 +182,7 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         bigRemoteView.setOnClickPendingIntent(R.id.notification_stop, stopServicePendingIntent);
         bigRemoteView.setOnClickPendingIntent(R.id.notification_pause_or_resume, pauseOrResumeServicePendingIntent);
         bigRemoteView.setOnClickPendingIntent(R.id.notification_synchronize, synchronizeServicePendingIntent);
+        bigRemoteView.setOnClickPendingIntent(R.id.Notification_Top_Right, openSyncListener);
 
         smallRemoteView = new RemoteViews(getPackageName(),
                 R.layout.notification_small);
@@ -193,6 +191,8 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         smallRemoteView.setOnClickPendingIntent(R.id.notification_stop, stopServicePendingIntent);
         smallRemoteView.setOnClickPendingIntent(R.id.notification_pause_or_resume, pauseOrResumeServicePendingIntent);
         smallRemoteView.setOnClickPendingIntent(R.id.notification_synchronize, synchronizeServicePendingIntent);
+        smallRemoteView.setOnClickPendingIntent(R.id.Notification_Top_Right, openSyncListener);
+
 
         builder =
                 new NotificationCompat.Builder(this)
@@ -241,6 +241,24 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
         });
     }
 
+    private void pause() {
+        final MusicService musicService = this;
+
+        getSpotifyPlayerWrapper().getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                    Log.d(TAG, "Pausing song");
+                    spotifyPlayerWrapper.pause();
+                    Intent pause = new Intent(MainActivity.PAUSE);
+                    pause.setAction("no.saiboten.synclistener.PAUSE");
+                    LocalBroadcastManager.getInstance(musicService).sendBroadcast(pause);
+                    smallRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.playoptional_small);
+                    bigRemoteView.setImageViewResource(R.id.notification_pause_or_resume, R.drawable.playoptional_small);
+                    notificationManager.notify(NOTIFICATION_ID, notification);
+            }
+        });
+    }
+
     public void updateNotificationPlayPauseIcons() {
         getSpotifyPlayerWrapper().getPlayerState(new PlayerStateCallback() {
             @Override
@@ -266,8 +284,17 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
 
     private void stopService() {
         Log.d(TAG, "Stopping service");
+
+        broadcastIntent(MainActivity.SERVICE_STOPPED, "no.saiboten.synclistener.SERVICE_STOPPED");
+
         spotifyPlayerWrapper.getPlayer().shutdown();
         stopSelf();
+    }
+
+    private void broadcastIntent(String serviceStopped, String action) {
+        Intent pause = new Intent(serviceStopped);
+        pause.setAction(action);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(pause);
     }
 
     public void playNewSong() {
@@ -353,7 +380,7 @@ public class MusicService extends IntentService implements NextSongFromSyncliste
                 if(state == 0 && headsetConnected) {
                     Log.d(TAG, "Headset unplugged");
                     headsetConnected = false;
-                    getSpotifyPlayerWrapper().pause();
+                    pause();
                 } else if(state == 1 && !headsetConnected) {
                     Log.d(TAG, "Headset plugged");
                     headsetConnected = true;

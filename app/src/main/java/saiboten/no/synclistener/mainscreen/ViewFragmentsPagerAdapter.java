@@ -2,11 +2,12 @@ package saiboten.no.synclistener.mainscreen;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 
 import saiboten.no.synclistener.webview.WebViewFragment;
 
-public class ViewFragmentsPagerAdapter extends SmartFragmentStatePagerAdapter {
+public class ViewFragmentsPagerAdapter extends FragmentStatePagerAdapter { //extends SmartFragmentStatePagerAdapter {
 
     private final static String TAG = "ViewFragPagerAdapter";
 

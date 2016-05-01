@@ -175,13 +175,11 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         if(mainActivity.accessTokenHelper.accessTokenHasExpired(mainActivity)) {
             Intent intent = new Intent(this.getActivity(), SetupActivity.class);
             intent.putExtra("loginFailed", true);
+            mainActivity.popup.hide();
             startActivity(intent);
         }
         else {
-            if(!mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
-                Log.d(TAG, "Music service is not running. Have to start it");
-                mainActivity.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
-            }
+            ensureMusicServiceIsRunning();
 
             String playlistText = playlist.getText().toString();
 
@@ -203,13 +201,24 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         }
     }
 
+    private void ensureMusicServiceIsRunning() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
+
+        if(!mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
+            Log.d(TAG, "Music service is not running. Have to start it");
+            mainActivity.musicServiceCommunicator.startMusicService(sharedPreferences.getString(ACCESS_TOKEN, null));
+        }
+    }
+
     @OnClick(R.id.MusicPlayerFragment_FloatingActionButton)
     public void fabOnClick() {
+        mainActivity.setupProgressDialog();
         synchronize();
     }
 
     @OnClick(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
     public void playOrPauseClick() {
+        ensureMusicServiceIsRunning();
         mainActivity.getMusicServiceCommunicator().playOrResumePlayer();
     }
 
@@ -242,18 +251,13 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         }
     }
 
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-        updateTimeThread.interrupt();
-    }
-
     @Override
     public void getNextSongAndPlaySuccess(SyncListenerSongInfo syncListenerSongInfo) {
         String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
         mainActivity.getMusicServiceCommunicator().play(nextSong, playlist.getText().toString());
         resume();
         getNextSongSuccess(syncListenerSongInfo);
+        mainActivity.popup.hide();
     }
 
     public void getNextSongSuccess(SyncListenerSongInfo syncListenerSongInfo) {
@@ -307,6 +311,18 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     public void playStatusCallback(boolean isPlaying) {
         Log.d(TAG, "Player status callback recieved, are we playing? " + isPlaying);
         paused = !isPlaying;
+    }
+
+    public void serviceStopped() {
+        Log.d(TAG, "Service stopped. Performing some cleanup activities");
+        paused = true;
+        pauseOrPlayButton.setVisibility(View.INVISIBLE);
+    }
+
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+        updateTimeThread.interrupt();
     }
 
     private class UpdateTime implements Runnable {

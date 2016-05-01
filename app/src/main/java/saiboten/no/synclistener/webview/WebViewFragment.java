@@ -1,5 +1,6 @@
 package saiboten.no.synclistener.webview;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -44,10 +45,10 @@ public class WebViewFragment extends Fragment {
                 return true;
             }
         });
-
-        webView.loadUrl("http://spotocracy.net/");
         return view;
     }
+
+
 
     public void changeUrl(String playlist) {
         if(playlist.equals(this.selectedPlaylist)) {
@@ -56,5 +57,6 @@ public class WebViewFragment extends Fragment {
             Log.d("WebViewFragment", "Playlist changed. Loading new url");
             webView.loadUrl("http://spotocracy.net/p/" + playlist);
         }
+        this.selectedPlaylist = playlist;
     }
 }

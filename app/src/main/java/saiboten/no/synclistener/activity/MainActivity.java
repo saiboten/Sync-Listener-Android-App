@@ -3,6 +3,7 @@
 // Copyright (c) 2014 Spotify. All rights reserved.
 package saiboten.no.synclistener.activity;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,8 +42,9 @@ public class MainActivity extends FragmentActivity {
 
     public static final String SYNCHRONIZE_AND_PLAY = "no.saiboten.synclistener.SYNCHRONIZE_AND_PLAY";
 
-
     private final static String TAG = "MainActivity";
+
+    public static final String SERVICE_STOPPED = "no.saiboten.synclistener.SERVICE_STOPPED";
 
     @Inject
     public MusicServiceCommunicator musicServiceCommunicator;
@@ -64,6 +66,8 @@ public class MainActivity extends FragmentActivity {
     @Inject
     WebViewFragment webViewFragment;
 
+    public ProgressDialog popup;
+
     private BroadcastReceiver bReceiver = new BroadcastReceiver() {
 
         @Override
@@ -73,9 +77,13 @@ public class MainActivity extends FragmentActivity {
             if(intent.getAction().equals(SYNCHRONIZE)) {
                 Log.d(TAG, "Synchronizing with server playlist");
                 musicPlayerFragment().setInfo();
-            }else if(intent.getAction().equals(SYNCHRONIZE_AND_PLAY)) {
+            } else if(intent.getAction().equals(SYNCHRONIZE_AND_PLAY)) {
                 Log.d(TAG, "Synchronizing and playing");
                 musicPlayerFragment().synchronize();
+            } else if(intent.getAction().equals(SERVICE_STOPPED)) {
+                Log.d(TAG, "Synchronizing and playing");
+                //TODO
+                serviceStopped();
             } else if(intent.getAction().equals(SEEK)) {
                 Log.d(TAG, "Seeking to the right place");
                 musicPlayerFragment().seek();
@@ -87,10 +95,14 @@ public class MainActivity extends FragmentActivity {
                 musicPlayerFragment().resume();
             } else if(intent.getAction().equals(PLAYINGSTATUS)) {
                 Log.d(TAG, "Play status received");
-                musicPlayerFragment().playStatusCallback(intent.getBooleanExtra("status",false));
+                musicPlayerFragment().playStatusCallback(intent.getBooleanExtra("status", false));
             }
         }
     };
+
+    private void serviceStopped() {
+        musicPlayerFragment.serviceStopped();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +118,14 @@ public class MainActivity extends FragmentActivity {
         setupBroadcasterRegistration();
 
         setupFragmentView();
+        checkAutoplay();
+    }
+
+    private void checkAutoplay() {
+        Intent intent = getIntent();
+        if(intent.getBooleanExtra("autoplay", false)) {
+            musicPlayerFragment.synchronize();
+        }
     }
 
     private void setupBroadcasterRegistration() {
@@ -115,6 +135,7 @@ public class MainActivity extends FragmentActivity {
         intentFilter.addAction(SEEK);
         intentFilter.addAction(PLAYINGSTATUS);
         intentFilter.addAction(SYNCHRONIZE_AND_PLAY);
+        intentFilter.addAction(SERVICE_STOPPED);
         intentFilter.addAction(PAUSE);
         intentFilter.addAction(RESUME);
         bManager.registerReceiver(bReceiver, intentFilter);
@@ -127,8 +148,8 @@ public class MainActivity extends FragmentActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         //Bind the title indicator to the adapter
-       // TitlePageIndicator titleIndicator = (TitlePageIndicator)findViewById(R.id.titles);
-       // titleIndicator.setViewPager(viewPager);
+        // TitlePageIndicator titleIndicator = (TitlePageIndicator)findViewById(R.id.titles);
+        // titleIndicator.setViewPager(viewPager);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -138,7 +159,7 @@ public class MainActivity extends FragmentActivity {
                 MusicPlayerFragment musicPlayerFragment = musicPlayerFragment(); // 0 == player
 
                 String playlistString = musicPlayerFragment.playlist.getText().toString();
-                Log.d("MainActivity", playlistString);
+                Log.d(TAG, "Tring to load this playlist in webview: " + playlistString);
                 webViewFragment.changeUrl(playlistString);
             }
 
@@ -159,11 +180,18 @@ public class MainActivity extends FragmentActivity {
     }
 
     public MusicPlayerFragment musicPlayerFragment() {
-        return (MusicPlayerFragment) viewFragmentsPagerAdapter.getRegisteredFragment(0);
+        return (MusicPlayerFragment) viewFragmentsPagerAdapter.getItem(0);
     }
 
     public WebViewFragment getWebViewFragment() {
-        return (WebViewFragment) viewFragmentsPagerAdapter.getRegisteredFragment(1);
+        return (WebViewFragment) viewFragmentsPagerAdapter.getItem(1);
+    }
+
+    public void setupProgressDialog() {
+        popup = new ProgressDialog(this);
+        popup.setMessage("Laster");
+        popup.setCancelable(false);
+        popup.show();
     }
 
     @Override

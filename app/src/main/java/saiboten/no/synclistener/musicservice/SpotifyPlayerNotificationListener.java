@@ -25,6 +25,7 @@ public class SpotifyPlayerNotificationListener implements
 
     public SpotifyPlayerNotificationListener(MusicService musicService) {
         this.musicService = musicService;
+        Log.d(TAG, "new Spotify player notification listener created");
     }
 
     @Override
@@ -86,7 +87,7 @@ public class SpotifyPlayerNotificationListener implements
                 synchronize.setAction("no.saiboten.synclistener.SYNCHRONIZE");
                 LocalBroadcastManager.getInstance(musicService).sendBroadcast(synchronize);
             }
-        }, 5000);
+        }, 2000);
     }
 
     @Override
