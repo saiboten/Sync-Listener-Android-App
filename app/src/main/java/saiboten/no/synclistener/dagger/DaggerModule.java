@@ -42,8 +42,8 @@ public class DaggerModule {
         return new MusicPlayerFragment();
     }
 
-    @Provides
     @Singleton
+    @Provides
     public WebViewFragment getWebViewFragment() {
         return new WebViewFragment();
     }

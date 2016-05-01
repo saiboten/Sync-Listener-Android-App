@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
@@ -62,9 +63,6 @@ public class MainActivity extends FragmentActivity {
     public ViewPager viewPager;
 
     ViewFragmentsPagerAdapter viewFragmentsPagerAdapter;
-
-    @Inject
-    WebViewFragment webViewFragment;
 
     public ProgressDialog popup;
 
@@ -142,9 +140,9 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void setupFragmentView() {
-        viewFragmentsPagerAdapter = new ViewFragmentsPagerAdapter(getSupportFragmentManager(), webViewFragment, musicPlayerFragment);
+        viewFragmentsPagerAdapter = new ViewFragmentsPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewFragmentsPagerAdapter);
-
+        viewPager.setOffscreenPageLimit(4);
         tabLayout.setupWithViewPager(viewPager);
 
         //Bind the title indicator to the adapter
@@ -153,26 +151,42 @@ public class MainActivity extends FragmentActivity {
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-            @Override
-            public void onPageSelected(int position) {
-                WebViewFragment webViewFragment = getWebViewFragment(); // 1 == webview
-                MusicPlayerFragment musicPlayerFragment = musicPlayerFragment(); // 0 == player
+              @Override
+              public void onPageSelected(int position) {
 
-                String playlistString = musicPlayerFragment.playlist.getText().toString();
-                Log.d(TAG, "Tring to load this playlist in webview: " + playlistString);
-                webViewFragment.changeUrl(playlistString);
-            }
+                  SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                  String playlist = sharedPref.getString(getString(R.string.playlist), "");
 
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                // Not in use
-            }
+                  Log.d(TAG, "Page selected: " + position);
+                  Log.d(TAG, "Tring to load this playlist in webview: " + playlist);
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                // Not in use
-            }
-        });
+                  if(position == 0) {
+                      Log.d(TAG, "MusicPlayerFragment selected. Doing nothing");
+                      return;
+                  } else if(position == 1) {
+                      Log.d(TAG, "Loading playlist web view");
+                      viewFragmentsPagerAdapter.webViewPlaylistFragment.loadPlaylist(playlist);
+                  } else if(position == 2) {
+                      Log.d(TAG, "Loading search web view");
+                      viewFragmentsPagerAdapter.webViewPlaylistSearch.loadSearch(playlist);
+                  }
+              }
+
+              @Override
+              public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                  // Not in use
+              }
+
+              @Override
+              public void onPageScrollStateChanged(int state) {
+                  // Not in use
+              }
+          });
+    }
+
+    private String getFragmentTag(int viewPagerId, int fragmentPosition)
+    {
+        return "android:switcher:" + viewPagerId + ":" + fragmentPosition;
     }
 
     public MusicServiceCommunicator getMusicServiceCommunicator() {
@@ -180,11 +194,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     public MusicPlayerFragment musicPlayerFragment() {
-        return (MusicPlayerFragment) viewFragmentsPagerAdapter.getItem(0);
-    }
-
-    public WebViewFragment getWebViewFragment() {
-        return (WebViewFragment) viewFragmentsPagerAdapter.getItem(1);
+        return (MusicPlayerFragment) viewFragmentsPagerAdapter.musicPlayerFragment;
     }
 
     public void setupProgressDialog() {
@@ -192,6 +202,20 @@ public class MainActivity extends FragmentActivity {
         popup.setMessage("Laster");
         popup.setCancelable(false);
         popup.show();
+    }
+
+    public void setupHorizontalProgressDialog() {
+        popup = new ProgressDialog(this);
+        popup.setMessage("Laster");
+        popup.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        popup.setCancelable(false);
+        popup.setMax(100);
+        popup.setProgress(0);
+        popup.show();
+    }
+
+    public void updateProgressDialogProgress(int progress) {
+        popup.setProgress(progress);
     }
 
     @Override

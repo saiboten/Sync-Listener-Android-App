@@ -9,8 +9,8 @@ android {
         applicationId "no.saiboten.synclistener"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 3
-        versionName "0.6"
+        versionCode 6
+        versionName "0.85"
     }
     buildTypes {
         release {
@@ -50,5 +50,4 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-jackson:2.0.0-beta4'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-
 }

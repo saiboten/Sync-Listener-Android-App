@@ -130,6 +130,10 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         return rootView;
     }
 
+    public static Fragment getInstance() {
+        return new MusicPlayerFragment();
+    }
+
     public void pause() {
         if(mainActivity.getMusicServiceCommunicator().isMusicServiceRunning()) {
             pauseOrPlayButton.setImageResource(R.drawable.playoptional);
