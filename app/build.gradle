@@ -9,8 +9,8 @@ android {
         applicationId "no.saiboten.synclistener"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 6
-        versionName "0.85"
+        versionCode 7
+        versionName "0.86"
     }
     buildTypes {
         release {
