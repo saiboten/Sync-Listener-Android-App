@@ -23,6 +23,7 @@ import java.util.Set;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import butterknife.OnTouch;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.activity.MainActivity;
@@ -153,6 +154,12 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         //TODO save some state here maybe?
     }
 
+    @OnTextChanged(R.id.MusicPlayerFragment_EditText_playlist)
+    public void textChanged(CharSequence text) {
+        updatePlaylist(text.toString());
+    }
+
+
     @OnTouch(R.id.MusicPlayerFragment_ImageButton_play_or_pause)
     public boolean touchButton(View v, MotionEvent event) {
         Log.d(TAG, "Touch!" + event.getAction());
@@ -184,24 +191,18 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         }
         else {
             ensureMusicServiceIsRunning();
-
-            String playlistText = playlist.getText().toString();
-
-            if(playlistText != null && !playlistText.equals("")) {
-                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                Set<String> previousPlaylists = sharedPref.getStringSet(getString(R.string.playlistSet), new HashSet<String>());
-
-                SharedPreferences.Editor editor = sharedPref.edit();
-                Log.d(TAG, "Playlist being saved: " + playlistText);
-                editor.putString(getString(R.string.playlist), playlistText);
-
-                previousPlaylists.add(playlistText);
-                editor.putStringSet(getString(R.string.playlistSet), previousPlaylists);
-                editor.commit();
-            }
             retrieveAndPlaySong();
             pauseOrPlayButton.setVisibility(View.VISIBLE);
 
+        }
+    }
+
+    private void updatePlaylist(String newPlaylistValue) {
+        if(newPlaylistValue != null && !newPlaylistValue.equals("")) {
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(getString(R.string.playlist), newPlaylistValue);
+            editor.apply();
         }
     }
 
