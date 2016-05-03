@@ -22,13 +22,13 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.dagger.BaseApplication;
+import saiboten.no.synclistener.mainscreen.AddPlaylistFragment;
 import saiboten.no.synclistener.mainscreen.MusicPlayerFragment;
 import saiboten.no.synclistener.mainscreen.ViewFragmentsPagerAdapter;
 import saiboten.no.synclistener.musicservicecommunicator.MusicServiceCommunicator;
 import saiboten.no.synclistener.preferences.AccessTokenHelper;
-import saiboten.no.synclistener.webview.WebViewFragment;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements AddPlaylistFragment.NoticeDialogListener {
 
     //Your activity will respond to this action String
     public static final String SYNCHRONIZE = "no.saiboten.synclistener.SYNCHRONIZE";
@@ -184,11 +184,6 @@ public class MainActivity extends FragmentActivity {
           });
     }
 
-    private String getFragmentTag(int viewPagerId, int fragmentPosition)
-    {
-        return "android:switcher:" + viewPagerId + ":" + fragmentPosition;
-    }
-
     public MusicServiceCommunicator getMusicServiceCommunicator() {
         return this.musicServiceCommunicator;
     }
@@ -226,5 +221,15 @@ public class MainActivity extends FragmentActivity {
         super.onDestroy();
 
         Log.d("MainActivity", "Main activity destroyed");
+    }
+
+    @Override
+    public void onDialogPositiveClick(AddPlaylistFragment fragment) {
+        musicPlayerFragment.onDialogPositiveClick(fragment);
+    }
+
+    @Override
+    public void onDialogNegativeClick(AddPlaylistFragment addPlaylistFragment) {
+        musicPlayerFragment.onDialogNegativeClick(addPlaylistFragment);
     }
 }

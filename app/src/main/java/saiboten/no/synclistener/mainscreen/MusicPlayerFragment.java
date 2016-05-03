@@ -1,5 +1,6 @@
 package saiboten.no.synclistener.mainscreen;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,19 +12,23 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.OnTextChanged;
 import butterknife.OnTouch;
 import saiboten.no.synclistener.R;
 import saiboten.no.synclistener.activity.MainActivity;
@@ -36,7 +41,7 @@ import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclisten
 import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
 import saiboten.no.synclistener.tasks.DownloadImageTask;
 
-public class MusicPlayerFragment extends Fragment implements NextSongFromSynclistenerCallback, SongInfoFromSpotifyCallback {
+public class MusicPlayerFragment extends Fragment implements NextSongFromSynclistenerCallback, SongInfoFromSpotifyCallback, AddPlaylistFragment.NoticeDialogListener {
 
     public static final String ACCESS_TOKEN = "access_token";
 
@@ -56,14 +61,20 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     @Bind(R.id.MusicPlayerFragment_TextView_songLength)
     public TextView songLength;
 
-    @Bind(R.id.MusicPlayerFragment_EditText_playlist)
-    public EditText playlist;
+    public String playlistString;
 
     @Bind(R.id.MusicPlayerFragment_TextView_songinfo)
     public TextView songinfo;
 
     @Bind(R.id.MusicPlayerFragment_ImageView_imageView)
     public ImageView imageView;
+
+    @Bind(R.id.MusicPlayerFragment_Spinner_playlistSelector)
+    Spinner spinner;
+
+    ArrayAdapter<String> adapter;
+
+    List<String> spinnerArray;
 
     public View rootView;
 
@@ -86,6 +97,9 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     UpdateTime updateTime = new UpdateTime();
 
     Thread updateTimeThread;
+
+    private final static String SHAREDPREF_PLAYLISTS= "playlists";
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -116,7 +130,8 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        playlist.setText(previousPlaylist);
+        playlistString = previousPlaylist;
+        setupSpinner();
 
         if(mainActivity.musicServiceCommunicator.isMusicServiceRunning()) {
             Log.d(TAG, "Music service is running, lets just set info?");
@@ -129,6 +144,45 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         }
 
         return rootView;
+    }
+
+    private void setupSpinner() {
+        spinnerArray = new ArrayList<>();
+        spinnerArray.add("hellsenmetal");
+        spinnerArray.add("hellsen");
+        adapter = new ArrayAdapter<String>(
+                getContext(), android.R.layout.simple_spinner_item, spinnerArray);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        updateSpinnerContent();
+
+        setCurrentPlaylistInSpinner();
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                playlistString = spinner.getSelectedItem().toString();
+                Log.d(TAG, "Selected item from Spinner: " + playlistString);
+                updatePlaylist();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void setCurrentPlaylistInSpinner() {
+        int pos = 0;
+        for(int i = 0; i <spinnerArray.size(); i++) {
+            if(spinnerArray.get(i).equals(playlistString)) {
+                pos = i;
+                break;
+            }
+        }
+
+        spinner.setSelection(pos);
     }
 
     public static Fragment getInstance() {
@@ -152,11 +206,6 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     @Override
     public void onSaveInstanceState(Bundle outState) {
         //TODO save some state here maybe?
-    }
-
-    @OnTextChanged(R.id.MusicPlayerFragment_EditText_playlist)
-    public void textChanged(CharSequence text) {
-        updatePlaylist(text.toString());
     }
 
 
@@ -197,11 +246,11 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         }
     }
 
-    private void updatePlaylist(String newPlaylistValue) {
-        if(newPlaylistValue != null && !newPlaylistValue.equals("")) {
+    private void updatePlaylist() {
+        if(playlistString != null && !playlistString.equals("")) {
             SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString(getString(R.string.playlist), newPlaylistValue);
+            editor.putString(getString(R.string.playlist), playlistString);
             editor.apply();
         }
     }
@@ -239,7 +288,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     public void setInfo() {
         Log.d(TAG, "Updating screen info. This should not play or pause or anything, just update the info on screen");
 
-        String playlistText = playlist.getText().toString();
+        String playlistText = playlistString;
 
         if(playlistText != null && !playlistText.equals("")) {
             Log.d(TAG, "Retrieving song info from playlist: " + playlistText);
@@ -248,7 +297,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     }
 
     public void retrieveAndPlaySong() {
-        String playlistText = playlist.getText().toString();
+        String playlistText = playlistString;
 
         if(playlistText != null && !playlistText.equals("")) {
             Log.d(TAG, "Complete url: " + playlistText);
@@ -259,7 +308,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     @Override
     public void getNextSongAndPlaySuccess(SyncListenerSongInfo syncListenerSongInfo) {
         String nextSong = syncListenerSongInfo.getSongTop().getSongAgain().getUri();
-        mainActivity.getMusicServiceCommunicator().play(nextSong, playlist.getText().toString());
+        mainActivity.getMusicServiceCommunicator().play(nextSong, playlistString);
         resume();
         getNextSongSuccess(syncListenerSongInfo);
         mainActivity.popup.hide();
@@ -324,10 +373,55 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         pauseOrPlayButton.setVisibility(View.INVISIBLE);
     }
 
+    @OnClick(R.id.MusicPlayerFragment_ImageButton_addPlaylistButton)
+    public void addPlaylist() {
+        AddPlaylistFragment addPlaylistFragment = new AddPlaylistFragment();
+        addPlaylistFragment.show(getFragmentManager(),"addPlaylistFragment");
+    }
+
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
         updateTimeThread.interrupt();
+    }
+
+    @Override
+    public void onDialogPositiveClick(AddPlaylistFragment fragment) {
+        Dialog dialog = fragment.getDialog();
+        EditText playlistToBeAddedTextView = (EditText) dialog.findViewById(R.id.Player_EditText_playlist);
+        String playlistString = playlistToBeAddedTextView.getText().toString();
+        Log.d(TAG, "Text from dialog: " + playlistString);
+        Log.d(TAG, "What? " + getActivity());
+
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        Set<String> previousPlaylists = sharedPref.getStringSet(SHAREDPREF_PLAYLISTS, null);
+        if(previousPlaylists == null) {
+            Log.d(TAG, "No existing playlists. Storing new list");
+            previousPlaylists = new HashSet<String>();
+        }
+
+        previousPlaylists.add(playlistString);
+        sharedPref.edit().putStringSet(SHAREDPREF_PLAYLISTS, previousPlaylists).apply();
+        updateSpinnerContent();
+    }
+
+    public void updateSpinnerContent() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        Set<String> previousPlaylists = sharedPref.getStringSet(SHAREDPREF_PLAYLISTS, null);
+
+        if(previousPlaylists != null) {
+            // you need to have a list of data that you want the spinner to display
+            spinnerArray =  new ArrayList<String>();
+
+            for(String str : previousPlaylists) {
+                spinnerArray.add(str);
+            }
+        }
+    }
+
+    @Override
+    public void onDialogNegativeClick(AddPlaylistFragment addPlaylistFragment) {
+        Log.d(TAG, "User cancelled the add playlist dialog");
     }
 
     private class UpdateTime implements Runnable {

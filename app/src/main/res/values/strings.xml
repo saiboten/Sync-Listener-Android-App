@@ -18,6 +18,8 @@
     <string name="playOrPause">Play or pause</string>
     <string name="title_activity_setup">SetupActivity</string>
     <string name="spotocracy_font_family">Clarendon BT</string>
+    <string name="alert_okButtonText">OK</string>
+    <string name="alert_cancelButtonText">Avbryt</string>
 
 
 </resources>

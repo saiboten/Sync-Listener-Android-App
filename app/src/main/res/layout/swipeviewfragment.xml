@@ -37,19 +37,31 @@
             android:text="Velg en spilleliste"
             android:textColor="@color/complementary1"
             android:textSize="20sp"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/MusicPlayerFragment_EditText_playlist"
-            style="@style/DefaultSyncListenerStyle"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/complementary2"
-            android:hint="@string/playlistname"
-            android:imeOptions="actionDone"
-            android:padding="10dp"
-            android:singleLine="true"
-            android:text=""
-            android:textColor="@color/primary5"/>
+            <Spinner
+                android:id="@+id/MusicPlayerFragment_Spinner_playlistSelector"
+                android:layout_width="300dp"
+                android:background="@color/complementary2"
+                android:padding="10dp"
+                android:layout_height="wrap_content" />
+
+
+
+            <ImageButton
+                android:id="@+id/MusicPlayerFragment_ImageButton_addPlaylistButton"
+                android:layout_width="wrap_content"
+                android:src="@drawable/play"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/MusicPlayerFragment_Spinner_playlistSelector"
+                />
+
+        </RelativeLayout>
+
+
+
 
         <LinearLayout
             android:id="@+id/linearLayout"
