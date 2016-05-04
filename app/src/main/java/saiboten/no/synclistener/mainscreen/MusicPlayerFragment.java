@@ -1,6 +1,5 @@
 package saiboten.no.synclistener.mainscreen;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -22,7 +20,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +38,7 @@ import saiboten.no.synclistener.synclistenerrest.callback.NextSongFromSynclisten
 import saiboten.no.synclistener.synclistenerrest.model.SyncListenerSongInfo;
 import saiboten.no.synclistener.tasks.DownloadImageTask;
 
-public class MusicPlayerFragment extends Fragment implements NextSongFromSynclistenerCallback, SongInfoFromSpotifyCallback, AddPlaylistFragment.NoticeDialogListener {
+public class MusicPlayerFragment extends Fragment implements NextSongFromSynclistenerCallback, SongInfoFromSpotifyCallback  {
 
     public static final String ACCESS_TOKEN = "access_token";
 
@@ -98,9 +95,6 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
 
     Thread updateTimeThread;
 
-    private final static String SHAREDPREF_PLAYLISTS= "playlists";
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +107,14 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
             updateTimeThread.run();
         }
     }
+
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "Fragment resumed");
+
+    }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -147,15 +149,18 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     }
 
     private void setupSpinner() {
+        Log.d(TAG, "Setting up spinner");
         spinnerArray = new ArrayList<>();
-        spinnerArray.add("hellsenmetal");
-        spinnerArray.add("hellsen");
         adapter = new ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_spinner_item, spinnerArray);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        updateSpinnerContent();
+
+        SharedPreferences sharedPref = mainActivity.getPreferences(Context.MODE_PRIVATE);
+        Set<String> playlistsToStore = sharedPref.getStringSet(mainActivity.SHAREDPREF_PLAYLISTS, null);
+
+        updateSpinnerContent(playlistsToStore);
 
         setCurrentPlaylistInSpinner();
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -168,7 +173,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                Log.d(TAG, "Selected item from Spinner: " );
             }
         });
     }
@@ -385,43 +390,20 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         updateTimeThread.interrupt();
     }
 
-    @Override
-    public void onDialogPositiveClick(AddPlaylistFragment fragment) {
-        Dialog dialog = fragment.getDialog();
-        EditText playlistToBeAddedTextView = (EditText) dialog.findViewById(R.id.Player_EditText_playlist);
-        String playlistString = playlistToBeAddedTextView.getText().toString();
-        Log.d(TAG, "Text from dialog: " + playlistString);
-        Log.d(TAG, "What? " + getActivity());
+    public void updateSpinnerContent(Set<String> playlistsToStore) {
+        Log.d(TAG, "Updating spinner content with these playlists: " +playlistsToStore);
 
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        Set<String> previousPlaylists = sharedPref.getStringSet(SHAREDPREF_PLAYLISTS, null);
-        if(previousPlaylists == null) {
-            Log.d(TAG, "No existing playlists. Storing new list");
-            previousPlaylists = new HashSet<String>();
-        }
-
-        previousPlaylists.add(playlistString);
-        sharedPref.edit().putStringSet(SHAREDPREF_PLAYLISTS, previousPlaylists).apply();
-        updateSpinnerContent();
-    }
-
-    public void updateSpinnerContent() {
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        Set<String> previousPlaylists = sharedPref.getStringSet(SHAREDPREF_PLAYLISTS, null);
-
-        if(previousPlaylists != null) {
+        if(playlistsToStore != null) {
             // you need to have a list of data that you want the spinner to display
-            spinnerArray =  new ArrayList<String>();
+            //spinnerArray =  new ArrayList<String>();
 
-            for(String str : previousPlaylists) {
+            Log.d(TAG, "Stored playlists are not null. Nice to know.");
+
+            for(String str : playlistsToStore) {
+                Log.d(TAG, "Adding " + str + " + to spinner");
                 spinnerArray.add(str);
             }
         }
-    }
-
-    @Override
-    public void onDialogNegativeClick(AddPlaylistFragment addPlaylistFragment) {
-        Log.d(TAG, "User cancelled the add playlist dialog");
     }
 
     private class UpdateTime implements Runnable {

@@ -3,6 +3,7 @@
 // Copyright (c) 2014 Spotify. All rights reserved.
 package saiboten.no.synclistener.activity;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +16,10 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.widget.EditText;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -65,6 +70,8 @@ public class MainActivity extends FragmentActivity implements AddPlaylistFragmen
     ViewFragmentsPagerAdapter viewFragmentsPagerAdapter;
 
     public ProgressDialog popup;
+
+    public final static String SHAREDPREF_PLAYLISTS= "playlists";
 
     private BroadcastReceiver bReceiver = new BroadcastReceiver() {
 
@@ -153,21 +160,19 @@ public class MainActivity extends FragmentActivity implements AddPlaylistFragmen
 
               @Override
               public void onPageSelected(int position) {
+                  Log.d(TAG, "Page selected: " + position);
 
                   SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                   String playlist = sharedPref.getString(getString(R.string.playlist), "");
-
-                  Log.d(TAG, "Page selected: " + position);
-                  Log.d(TAG, "Tring to load this playlist in webview: " + playlist);
 
                   if(position == 0) {
                       Log.d(TAG, "MusicPlayerFragment selected. Doing nothing");
                       return;
                   } else if(position == 1) {
-                      Log.d(TAG, "Loading playlist web view");
+                      Log.d(TAG, "Loading playlist web view, playlist: " + playlist);
                       viewFragmentsPagerAdapter.webViewPlaylistFragment.loadPlaylist(playlist);
                   } else if(position == 2) {
-                      Log.d(TAG, "Loading search web view");
+                      Log.d(TAG, "Loading search web view, playlist: " + playlist);
                       viewFragmentsPagerAdapter.webViewPlaylistSearch.loadSearch(playlist);
                   }
               }
@@ -225,11 +230,26 @@ public class MainActivity extends FragmentActivity implements AddPlaylistFragmen
 
     @Override
     public void onDialogPositiveClick(AddPlaylistFragment fragment) {
-        musicPlayerFragment.onDialogPositiveClick(fragment);
+        Dialog dialog = fragment.getDialog();
+        EditText playlistToBeAddedTextView = (EditText) dialog.findViewById(R.id.Player_EditText_playlist);
+        String playlistString = playlistToBeAddedTextView.getText().toString();
+        Log.d(TAG, "Text from dialog: " + playlistString);
+        Log.d(TAG, "Storing new playlist");
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        Set<String> playlistsToStore = sharedPref.getStringSet(SHAREDPREF_PLAYLISTS, null);
+        if(playlistsToStore == null) {
+            Log.d(TAG, "No existing playlists. Storing new list");
+            playlistsToStore = new HashSet<String>();
+        }
+
+        playlistsToStore.add(playlistString);
+        Log.d(TAG, "Storing new playlists: " + playlistsToStore);
+        sharedPref.edit().putStringSet(SHAREDPREF_PLAYLISTS, playlistsToStore).apply();
+        musicPlayerFragment.updateSpinnerContent(playlistsToStore);
     }
 
     @Override
     public void onDialogNegativeClick(AddPlaylistFragment addPlaylistFragment) {
-        musicPlayerFragment.onDialogNegativeClick(addPlaylistFragment);
+        Log.d(TAG, "Negative click");
     }
 }
