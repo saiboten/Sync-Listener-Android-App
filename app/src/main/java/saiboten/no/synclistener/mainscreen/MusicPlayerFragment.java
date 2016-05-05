@@ -151,11 +151,6 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
     private void setupSpinner() {
         Log.d(TAG, "Setting up spinner");
         spinnerArray = new ArrayList<>();
-        adapter = new ArrayAdapter<String>(
-                getContext(), android.R.layout.simple_spinner_item, spinnerArray);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
 
         SharedPreferences sharedPref = mainActivity.getPreferences(Context.MODE_PRIVATE);
         Set<String> playlistsToStore = sharedPref.getStringSet(mainActivity.SHAREDPREF_PLAYLISTS, null);
@@ -404,6 +399,12 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
                 spinnerArray.add(str);
             }
         }
+
+        adapter = new ArrayAdapter<String>(
+                getContext(), android.R.layout.simple_spinner_item, spinnerArray);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 
     private class UpdateTime implements Runnable {

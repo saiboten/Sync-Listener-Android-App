@@ -43,7 +43,7 @@
 
             <Spinner
                 android:id="@+id/MusicPlayerFragment_Spinner_playlistSelector"
-                android:layout_width="300dp"
+                android:layout_width="280dp"
                 android:background="@color/complementary2"
                 android:padding="10dp"
                 android:layout_height="wrap_content" />

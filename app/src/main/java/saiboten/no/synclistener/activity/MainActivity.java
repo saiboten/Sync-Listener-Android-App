@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
@@ -54,9 +55,6 @@ public class MainActivity extends FragmentActivity implements AddPlaylistFragmen
 
     @Inject
     public MusicServiceCommunicator musicServiceCommunicator;
-
-    @Inject
-    public MusicPlayerFragment musicPlayerFragment;
 
     @Inject
     public AccessTokenHelper accessTokenHelper;
@@ -106,7 +104,7 @@ public class MainActivity extends FragmentActivity implements AddPlaylistFragmen
     };
 
     private void serviceStopped() {
-        musicPlayerFragment.serviceStopped();
+        musicPlayerFragment().serviceStopped();
     }
 
     @Override
@@ -129,7 +127,7 @@ public class MainActivity extends FragmentActivity implements AddPlaylistFragmen
     private void checkAutoplay() {
         Intent intent = getIntent();
         if(intent.getBooleanExtra("autoplay", false)) {
-            musicPlayerFragment.synchronize();
+            musicPlayerFragment().synchronize();
         }
     }
 
@@ -245,8 +243,10 @@ public class MainActivity extends FragmentActivity implements AddPlaylistFragmen
         playlistsToStore.add(playlistString);
         Log.d(TAG, "Storing new playlists: " + playlistsToStore);
         sharedPref.edit().putStringSet(SHAREDPREF_PLAYLISTS, playlistsToStore).apply();
-        musicPlayerFragment.updateSpinnerContent(playlistsToStore);
+        musicPlayerFragment().updateSpinnerContent(playlistsToStore);
     }
+
+
 
     @Override
     public void onDialogNegativeClick(AddPlaylistFragment addPlaylistFragment) {
