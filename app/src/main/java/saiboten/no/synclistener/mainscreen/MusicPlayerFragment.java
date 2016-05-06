@@ -155,7 +155,7 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         SharedPreferences sharedPref = mainActivity.getPreferences(Context.MODE_PRIVATE);
         Set<String> playlistsToStore = sharedPref.getStringSet(mainActivity.SHAREDPREF_PLAYLISTS, null);
 
-        updateSpinnerContent(playlistsToStore);
+        setSpinnerContent(playlistsToStore);
 
         setCurrentPlaylistInSpinner();
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -385,7 +385,14 @@ public class MusicPlayerFragment extends Fragment implements NextSongFromSynclis
         updateTimeThread.interrupt();
     }
 
-    public void updateSpinnerContent(Set<String> playlistsToStore) {
+    public void addPlaylistToSpinner(String newPlaylist) {
+        Log.d(TAG, "Adding playlist to spinner: " + newPlaylist);
+        playlistString = spinner.getSelectedItem().toString();
+        spinnerArray.add(0,newPlaylist);
+        spinner.setSelection(0);
+    }
+
+    public void setSpinnerContent(Set<String> playlistsToStore) {
         Log.d(TAG, "Updating spinner content with these playlists: " +playlistsToStore);
 
         if(playlistsToStore != null) {
